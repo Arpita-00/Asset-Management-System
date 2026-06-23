@@ -4,6 +4,7 @@ A full-stack asset management platform for tracking organizational assets, alloc
 
 The project uses a React frontend, a Node.js/Express backend, Sequelize models, and MySQL. Docker Compose is included for running the complete stack locally.
 
+
 ## Features
 
 - Asset inventory with categories, departments, locations, health scores, and lifecycle status.
