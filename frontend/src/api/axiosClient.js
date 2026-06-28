@@ -5,7 +5,7 @@ import useAuthStore from '../store/authStore'
  * Axios instance with JWT interceptors and refresh token logic.
  */
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api',
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 })

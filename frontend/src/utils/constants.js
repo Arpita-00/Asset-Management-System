@@ -55,4 +55,4 @@ export const CHART_COLORS = [
 
 export const WARRANTY_ALERT_DAYS = [90, 60, 30, 15, 7]
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'

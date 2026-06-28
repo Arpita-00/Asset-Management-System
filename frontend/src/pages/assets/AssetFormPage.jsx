@@ -25,7 +25,7 @@ export default function AssetFormPage({ assetId }) {
 
   React.useEffect(() => {
     if (existingAsset?.imageUrl) {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api';
       const serverUrl = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
       const previewUrl = existingAsset.imageUrl.startsWith('http')
         ? existingAsset.imageUrl

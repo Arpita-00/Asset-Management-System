@@ -43,7 +43,7 @@ export default function AssetDetailPage() {
   const handleDownloadQr = () => {
     if (!asset) return
     const tag = asset.assetUniqueId || asset.assetTag
-    const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/qr/${tag}`
+    const url = `${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/qr/${tag}`
     const link = document.createElement('a')
     link.href = url
     link.setAttribute('download', `QR_${tag}.png`)
@@ -56,7 +56,7 @@ export default function AssetDetailPage() {
   const handlePrintQr = () => {
     if (!asset) return
     const tag = asset.assetUniqueId || asset.assetTag
-    const qrUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/qr/${tag}`
+    const qrUrl = `${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/qr/${tag}`
     const printWindow = window.open('', '_blank', 'width=350,height=400')
     printWindow.document.write(`
       <html>
@@ -223,7 +223,7 @@ export default function AssetDetailPage() {
                  style={{ borderColor: 'rgb(var(--border-color))', background: 'var(--ams-blue-pale)' }}>
               {asset.imageUrl && !imageError ? (
                 <img
-                  src={asset.imageUrl.startsWith('http') ? asset.imageUrl : `${(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').endsWith('/api') ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').slice(0, -4) : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api')}/${asset.imageUrl}`}
+                  src={asset.imageUrl.startsWith('http') ? asset.imageUrl : `${(import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api').endsWith('/api') ? (import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api').slice(0, -4) : (import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api')}/${asset.imageUrl}`}
                   alt={asset.name}
                   className="w-full h-full object-cover"
                   onError={() => setImageError(true)}
@@ -308,7 +308,7 @@ export default function AssetDetailPage() {
             
             <div className="bg-slate-950/60 border rounded-xl p-4 flex flex-col items-center justify-center gap-3" style={{ borderColor: 'rgb(var(--border-color))' }}>
               <img 
-                src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/qr/${asset.assetUniqueId || asset.assetTag}`} 
+                src={`${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/qr/${asset.assetUniqueId || asset.assetTag}`} 
                 alt="Asset QR Code" 
                 className="w-40 h-40 rounded-lg border bg-white p-1" 
                 style={{ borderColor: 'rgb(var(--border-color))' }}

@@ -191,7 +191,7 @@ export default function AssetPassportPage() {
               <div className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 bg-slate-950 border border-slate-850 overflow-hidden">
                 {asset.imageUrl && !imageError ? (
                   <img
-                    src={asset.imageUrl.startsWith('http') ? asset.imageUrl : `${(import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').endsWith('/api') ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api').slice(0, -4) : (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api')}/${asset.imageUrl}`}
+                    src={asset.imageUrl.startsWith('http') ? asset.imageUrl : `${(import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api').endsWith('/api') ? (import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api').slice(0, -4) : (import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api')}/${asset.imageUrl}`}
                     alt={asset.name}
                     className="w-full h-full object-cover"
                     onError={() => setImageError(true)}
@@ -461,7 +461,7 @@ export default function AssetPassportPage() {
                         </div>
                       </div>
                       <a 
-                        href={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/documents/download/${doc.id}`}
+                        href={`${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/documents/download/${doc.id}`}
                         target="_blank"
                         rel="noreferrer"
                         className="p-1.5 hover:bg-slate-900 rounded-lg text-slate-400 hover:text-slate-200 transition"

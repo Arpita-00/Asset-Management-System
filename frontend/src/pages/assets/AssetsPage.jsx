@@ -61,7 +61,7 @@ export default function AssetsPage() {
   const handleDownloadQr = (asset) => {
     if (!asset) return
     const tag = asset.assetUniqueId || asset.assetTag
-    const url = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/qr/${tag}`
+    const url = `${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/qr/${tag}`
     const link = document.createElement('a')
     link.href = url
     link.setAttribute('download', `QR_${tag}.png`)
@@ -74,7 +74,7 @@ export default function AssetsPage() {
   const handlePrintQr = (asset) => {
     if (!asset) return
     const tag = asset.assetUniqueId || asset.assetTag
-    const qrUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/qr/${tag}`
+    const qrUrl = `${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/qr/${tag}`
     const printWindow = window.open('', '_blank', 'width=350,height=400')
     printWindow.document.write(`
       <html>
@@ -354,7 +354,7 @@ export default function AssetsPage() {
 
               <div className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex flex-col items-center justify-center gap-3">
                 <img 
-                  src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/qr/${selectedQrAsset.assetUniqueId || selectedQrAsset.assetTag}`} 
+                  src={`${import.meta.env.VITE_API_BASE_URL || 'https://asset-management-system-2s9o.onrender.com/api'}/qr/${selectedQrAsset.assetUniqueId || selectedQrAsset.assetTag}`} 
                   alt="Asset QR Code" 
                   className="w-44 h-44 rounded-lg border bg-white p-1"
                   style={{ borderColor: 'rgb(var(--border-color))' }}
