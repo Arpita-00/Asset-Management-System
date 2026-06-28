@@ -23,9 +23,10 @@ const sequelize = new Sequelize(
       updatedAt: 'updatedAt',
     },
     dialectOptions: {
-      // Note: useSSL and allowPublicKeyRetrieval are not valid mysql2 options
-      // Use ssl object if SSL is needed:
-      // ssl: { rejectUnauthorized: false }
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
       connectTimeout: 30000,
     },
     timezone: '+00:00',
