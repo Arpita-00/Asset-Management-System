@@ -1,110 +1,138 @@
 -- =============================================================================
 -- AI-Powered Smart Asset Management System
 -- Database Schema - MySQL 8.0+
--- Version: 1.0.0
+-- Generated from actual application entities/models
 -- =============================================================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+DROP VIEW IF EXISTS v_dashboard_stats;
+DROP VIEW IF EXISTS v_asset_summary;
+DROP TABLE IF EXISTS qr_scan_logs;
+DROP TABLE IF EXISTS ai_chat_histories;
+DROP TABLE IF EXISTS budget_forecasts;
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS asset_health_scores;
+DROP TABLE IF EXISTS depreciation_records;
+DROP TABLE IF EXISTS asset_documents;
+DROP TABLE IF EXISTS warranty_trackings;
+DROP TABLE IF EXISTS maintenance_requests;
+DROP TABLE IF EXISTS asset_movements;
+DROP TABLE IF EXISTS asset_allocations;
+DROP TABLE IF EXISTS assets;
+DROP TABLE IF EXISTS vendor_ratings;
+DROP TABLE IF EXISTS vendors;
+DROP TABLE IF EXISTS asset_categories;
+DROP TABLE IF EXISTS employees;
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS departments;
+DROP TABLE IF EXISTS roles;
+SET FOREIGN_KEY_CHECKS = 1;
 
 
 -- =============================================================================
--- ROLES TABLE
+-- 1. ROLES
 -- =============================================================================
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name       VARCHAR(50) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name       VARCHAR(50) NOT NULL UNIQUE
 ) ENGINE=InnoDB;
 
 INSERT INTO roles (name) VALUES ('ROLE_SUPER_ADMIN'), ('ROLE_ADMIN'), ('ROLE_EMPLOYEE');
 
 -- =============================================================================
--- DEPARTMENTS TABLE
+-- 2. DEPARTMENTS
 -- =============================================================================
-CREATE TABLE departments (
+CREATE TABLE IF NOT EXISTS departments (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(100) NOT NULL UNIQUE,
-    code        VARCHAR(20)  NOT NULL UNIQUE,
+    code        VARCHAR(20) UNIQUE,
     description TEXT,
-    manager_id  BIGINT,
-    is_active   BOOLEAN DEFAULT TRUE,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    location    VARCHAR(200),
+    managerName VARCHAR(100),
+    isActive    BOOLEAN DEFAULT TRUE,
+    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- USERS TABLE
+-- 3. USERS
 -- =============================================================================
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    first_name           VARCHAR(100) NOT NULL,
-    last_name            VARCHAR(100) NOT NULL,
-    email                VARCHAR(255) NOT NULL UNIQUE,
+    firstName            VARCHAR(50) NOT NULL,
+    lastName             VARCHAR(50) NOT NULL,
+    email                VARCHAR(500) NOT NULL UNIQUE,
     password             VARCHAR(255) NOT NULL,
-    phone                VARCHAR(20),
-    avatar_url           VARCHAR(500),
+    phone                VARCHAR(500),
+    avatarUrl            VARCHAR(500),
+    isActive             BOOLEAN DEFAULT TRUE,
+    isEmailVerified      BOOLEAN DEFAULT FALSE,
+    lastLogin            TIMESTAMP NULL DEFAULT NULL,
+    refreshToken         TEXT,
+    passwordResetToken   VARCHAR(255),
+    resetTokenExpiry     TIMESTAMP NULL DEFAULT NULL,
     department_id        BIGINT,
-    is_active            BOOLEAN DEFAULT TRUE,
-    is_email_verified    BOOLEAN DEFAULT FALSE,
-    last_login           TIMESTAMP NULL DEFAULT NULL,
-    password_reset_token VARCHAR(255),
-    reset_token_expiry   TIMESTAMP NULL DEFAULT NULL,
-    refresh_token        TEXT,
-    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-    INDEX idx_email (email),
-    INDEX idx_department (department_id)
+    emailAlerts          BOOLEAN DEFAULT TRUE,
+    maintenanceUpdates   BOOLEAN DEFAULT TRUE,
+    systemAudits         BOOLEAN DEFAULT TRUE,
+    createdAt            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt            TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- USER_ROLES TABLE (Many-to-Many)
+-- 4. USER_ROLES (Through Table)
 -- =============================================================================
-CREATE TABLE user_roles (
-    user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id   BIGINT NOT NULL,
+    role_id   BIGINT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, role_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- EMPLOYEES TABLE
+-- 5. EMPLOYEES
 -- =============================================================================
-CREATE TABLE employees (
+CREATE TABLE IF NOT EXISTS employees (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    employee_code VARCHAR(50) NOT NULL UNIQUE,
-    user_id       BIGINT UNIQUE,
-    first_name    VARCHAR(100) NOT NULL,
-    last_name     VARCHAR(100) NOT NULL,
-    email         VARCHAR(255) NOT NULL UNIQUE,
-    phone         VARCHAR(20),
-    department_id BIGINT,
+    employeeCode  VARCHAR(30) NOT NULL UNIQUE,
+    firstName     VARCHAR(50) NOT NULL,
+    lastName      VARCHAR(50) NOT NULL,
+    email         VARCHAR(500) NOT NULL UNIQUE,
+    phone         VARCHAR(500),
     designation   VARCHAR(100),
-    join_date     DATE,
-    is_active     BOOLEAN DEFAULT TRUE,
-    avatar_url    VARCHAR(500),
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    joinDate      DATE,
+    avatarUrl     VARCHAR(500),
+    isActive      BOOLEAN DEFAULT TRUE,
+    department_id BIGINT,
+    user_id       BIGINT UNIQUE,
+    createdAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-    INDEX idx_emp_code (employee_code),
-    INDEX idx_emp_dept (department_id)
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- ASSET CATEGORIES TABLE
+-- 6. ASSET CATEGORIES
 -- =============================================================================
-CREATE TABLE asset_categories (
-    id          BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(100) NOT NULL UNIQUE,
-    code        VARCHAR(20)  NOT NULL UNIQUE,
-    description TEXT,
-    icon        VARCHAR(100),
-    useful_life INT,
-    is_active   BOOLEAN DEFAULT TRUE,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS asset_categories (
+    id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name             VARCHAR(100) NOT NULL UNIQUE,
+    description      TEXT,
+    code             VARCHAR(20) UNIQUE,
+    usefulLife       INT DEFAULT 5,
+    depreciationRate DECIMAL(5, 2),
+    isActive         BOOLEAN DEFAULT TRUE,
+    createdAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-INSERT INTO asset_categories (name, code, useful_life) VALUES
+INSERT INTO asset_categories (name, code, usefulLife) VALUES
     ('Laptop', 'LAP', 3),
     ('Desktop', 'DES', 5),
     ('Server', 'SRV', 7),
@@ -119,363 +147,324 @@ INSERT INTO asset_categories (name, code, useful_life) VALUES
     ('Software License', 'SWL', 3);
 
 -- =============================================================================
--- VENDORS TABLE
+-- 7. VENDORS
 -- =============================================================================
-CREATE TABLE vendors (
-    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
-    vendor_code     VARCHAR(50)  NOT NULL UNIQUE,
-    name            VARCHAR(200) NOT NULL,
-    contact_person  VARCHAR(100),
-    email           VARCHAR(255),
-    phone           VARCHAR(20),
-    address         TEXT,
-    city            VARCHAR(100),
-    state           VARCHAR(100),
-    country         VARCHAR(100) DEFAULT 'India',
-    pincode         VARCHAR(20),
-    gstin           VARCHAR(20),
-    website         VARCHAR(255),
-    avg_rating      DECIMAL(3,2) DEFAULT 0.00,
-    total_ratings   INT DEFAULT 0,
-    is_active       BOOLEAN DEFAULT TRUE,
-    notes           TEXT,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_vendor_code (vendor_code)
+CREATE TABLE IF NOT EXISTS vendors (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    vendorCode    VARCHAR(30) NOT NULL UNIQUE,
+    name          VARCHAR(200) NOT NULL,
+    contactPerson VARCHAR(100),
+    email         VARCHAR(500),
+    phone         VARCHAR(500),
+    address       TEXT,
+    city          VARCHAR(100),
+    state         VARCHAR(100),
+    country       VARCHAR(100) DEFAULT 'India',
+    pincode       VARCHAR(20),
+    gstin         VARCHAR(30),
+    website       VARCHAR(500),
+    avgRating     DECIMAL(3, 2) DEFAULT 0.00,
+    totalRatings  INT DEFAULT 0,
+    isActive      BOOLEAN DEFAULT TRUE,
+    notes         TEXT,
+    createdAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- VENDOR RATINGS TABLE
+-- 8. VENDOR RATINGS
 -- =============================================================================
-CREATE TABLE vendor_ratings (
+CREATE TABLE IF NOT EXISTS vendor_ratings (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     vendor_id   BIGINT NOT NULL,
-    rated_by    BIGINT NOT NULL,
-    rating      TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    rated_by_id BIGINT,
+    rating      INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     review      TEXT,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE,
-    FOREIGN KEY (rated_by) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (rated_by_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- ASSETS TABLE (Core)
+-- 9. ASSETS
 -- =============================================================================
-CREATE TABLE assets (
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    asset_tag         VARCHAR(100) NOT NULL UNIQUE,
-    name              VARCHAR(200) NOT NULL,
-    category_id       BIGINT NOT NULL,
-    brand             VARCHAR(100),
-    model             VARCHAR(100),
-    serial_number     VARCHAR(200) UNIQUE,
-    purchase_date     DATE,
-    purchase_cost     DECIMAL(12,2),
-    current_value     DECIMAL(12,2),
-    vendor_id         BIGINT,
-    department_id     BIGINT,
-    assigned_to       BIGINT,
-    current_location  VARCHAR(255),
-    warranty_expiry   DATE,
-    status            ENUM('AVAILABLE','ASSIGNED','UNDER_REPAIR','DISPOSED','LOST','RETIRED')
-                          NOT NULL DEFAULT 'AVAILABLE',
-    qr_code_url       VARCHAR(500),
-    image_url         VARCHAR(500),
-    description       TEXT,
-    specifications    JSON,
-    is_active         BOOLEAN DEFAULT TRUE,
-    disposed_at       TIMESTAMP NULL DEFAULT NULL,
-    disposal_reason   TEXT,
-    created_by        BIGINT,
-    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id)   REFERENCES asset_categories(id),
-    FOREIGN KEY (vendor_id)     REFERENCES vendors(id) ON DELETE SET NULL,
+CREATE TABLE IF NOT EXISTS assets (
+    id               BIGINT AUTO_INCREMENT PRIMARY KEY,
+    assetTag         VARCHAR(50) NOT NULL UNIQUE,
+    name             VARCHAR(200) NOT NULL,
+    brand            VARCHAR(100),
+    model            VARCHAR(100),
+    serialNumber     VARCHAR(100) UNIQUE,
+    purchaseDate     DATE,
+    purchaseCost     DECIMAL(15, 2),
+    currentValue     DECIMAL(15, 2),
+    currentLocation  VARCHAR(200),
+    warrantyExpiry   DATE,
+    status           ENUM('AVAILABLE', 'ASSIGNED', 'UNDER_REPAIR', 'DISPOSED', 'RETIRED') NOT NULL DEFAULT 'AVAILABLE',
+    description      TEXT,
+    specifications   TEXT,
+    qrCodeUrl        VARCHAR(500),
+    assetUniqueId    VARCHAR(100) UNIQUE,
+    qrGeneratedAt    TIMESTAMP NULL DEFAULT NULL,
+    qrLastUpdated    TIMESTAMP NULL DEFAULT NULL,
+    imageUrl         VARCHAR(500),
+    isActive         BOOLEAN DEFAULT TRUE,
+    disposedAt       TIMESTAMP NULL DEFAULT NULL,
+    category_id      BIGINT,
+    vendor_id        BIGINT,
+    department_id    BIGINT,
+    assigned_to_id   BIGINT,
+    created_by_id    BIGINT,
+    createdAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES asset_categories(id) ON DELETE SET NULL,
+    FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
     FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-    FOREIGN KEY (assigned_to)   REFERENCES employees(id) ON DELETE SET NULL,
-    FOREIGN KEY (created_by)    REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_asset_tag (asset_tag),
-    INDEX idx_asset_status (status),
-    INDEX idx_asset_dept (department_id),
-    INDEX idx_asset_category (category_id),
-    INDEX idx_asset_serial (serial_number),
-    FULLTEXT idx_ft_asset (name, brand, model, serial_number)
+    FOREIGN KEY (assigned_to_id) REFERENCES employees(id) ON DELETE SET NULL,
+    FOREIGN KEY (created_by_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- ASSET ALLOCATIONS TABLE
+-- 10. ASSET ALLOCATIONS
 -- =============================================================================
-CREATE TABLE asset_allocations (
+CREATE TABLE IF NOT EXISTS asset_allocations (
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
     asset_id        BIGINT NOT NULL,
     employee_id     BIGINT NOT NULL,
-    allocated_by    BIGINT NOT NULL,
-    allocated_date  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    expected_return DATE,
-    actual_return   TIMESTAMP NULL DEFAULT NULL,
-    returned_to     BIGINT,
-    status          ENUM('ACTIVE','RETURNED','TRANSFERRED') NOT NULL DEFAULT 'ACTIVE',
-    purpose         VARCHAR(500),
+    allocated_by_id BIGINT,
+    returned_to_id  BIGINT,
+    allocatedDate   TIMESTAMP NULL DEFAULT NULL,
+    expectedReturn  TIMESTAMP NULL DEFAULT NULL,
+    actualReturn    TIMESTAMP NULL DEFAULT NULL,
+    status          ENUM('ACTIVE', 'RETURNED', 'TRANSFERRED', 'LOST') NOT NULL DEFAULT 'ACTIVE',
+    purpose         TEXT,
     notes           TEXT,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (asset_id)    REFERENCES assets(id) ON DELETE CASCADE,
+    createdAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
     FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
-    FOREIGN KEY (allocated_by) REFERENCES users(id),
-    FOREIGN KEY (returned_to)  REFERENCES users(id),
-    INDEX idx_alloc_asset (asset_id),
-    INDEX idx_alloc_emp (employee_id),
-    INDEX idx_alloc_status (status)
+    FOREIGN KEY (allocated_by_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (returned_to_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- ASSET MOVEMENTS TABLE
+-- 11. ASSET MOVEMENTS
 -- =============================================================================
-CREATE TABLE asset_movements (
+CREATE TABLE IF NOT EXISTS asset_movements (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    asset_id        BIGINT NOT NULL,
+    moved_by_id     BIGINT,
+    movementType    ENUM('ALLOCATION', 'RETURN', 'TRANSFER', 'REPAIR_CENTER', 'DISPOSAL', 'LOCATION_CHANGE'),
+    fromLocation    VARCHAR(200),
+    toLocation      VARCHAR(200),
+    fromDepartment  VARCHAR(100),
+    toDepartment    VARCHAR(100),
+    fromEmployee    VARCHAR(100),
+    toEmployee      VARCHAR(100),
+    reason          TEXT,
+    movementDate    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    FOREIGN KEY (moved_by_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- =============================================================================
+-- 12. MAINTENANCE REQUESTS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS maintenance_requests (
+    id                 BIGINT AUTO_INCREMENT PRIMARY KEY,
+    requestNumber      VARCHAR(30) NOT NULL UNIQUE,
+    asset_id           BIGINT NOT NULL,
+    requested_by_id    BIGINT,
+    assigned_to_id     BIGINT,
+    issueType          ENUM('HARDWARE', 'SOFTWARE', 'NETWORK', 'PHYSICAL_DAMAGE', 'ROUTINE', 'OTHER'),
+    priority           ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL') DEFAULT 'MEDIUM',
+    status             ENUM('OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETED', 'CANCELLED') DEFAULT 'OPEN',
+    title              VARCHAR(200) NOT NULL,
+    description        TEXT,
+    estimatedCost      DECIMAL(12, 2),
+    actualCost         DECIMAL(12, 2),
+    assignedTechnician VARCHAR(100),
+    startedAt          TIMESTAMP NULL DEFAULT NULL,
+    completedAt        TIMESTAMP NULL DEFAULT NULL,
+    downtimeHours      DECIMAL(8, 2),
+    resolutionNotes    TEXT,
+    createdAt          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt          TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    FOREIGN KEY (requested_by_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (assigned_to_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- =============================================================================
+-- 13. WARRANTY TRACKINGS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS warranty_trackings (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    asset_id       BIGINT NOT NULL UNIQUE,
+    warrantyType   ENUM('MANUFACTURER', 'EXTENDED', 'THIRD_PARTY', 'ON_SITE', 'COMPREHENSIVE'),
+    startDate      DATE,
+    expiryDate     DATE,
+    providerName   VARCHAR(200),
+    contractNumber VARCHAR(100),
+    notes          TEXT,
+    alertSent30    BOOLEAN DEFAULT FALSE,
+    alertSent7     BOOLEAN DEFAULT FALSE,
+    createdAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- =============================================================================
+-- 14. ASSET DOCUMENTS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS asset_documents (
+    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
+    asset_id       BIGINT NOT NULL,
+    uploaded_by_id BIGINT,
+    documentType   ENUM('INVOICE', 'WARRANTY_CARD', 'MANUAL', 'INSURANCE', 'PHOTO', 'OTHER'),
+    fileName       VARCHAR(255) NOT NULL,
+    filePath       VARCHAR(500) NOT NULL,
+    fileSize       BIGINT,
+    mimeType       VARCHAR(100),
+    description    TEXT,
+    createdAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- =============================================================================
+-- 15. DEPRECIATION RECORDS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS depreciation_records (
     id               BIGINT AUTO_INCREMENT PRIMARY KEY,
     asset_id         BIGINT NOT NULL,
-    movement_type    ENUM('DEPARTMENT_CHANGE','LOCATION_CHANGE','REPAIR_CENTER','ALLOCATION','RETURN','DISPOSAL') NOT NULL,
-    from_location    VARCHAR(255),
-    to_location      VARCHAR(255),
-    from_department  VARCHAR(100),
-    to_department    VARCHAR(100),
-    from_employee    VARCHAR(200),
-    to_employee      VARCHAR(200),
-    moved_by         BIGINT,
-    movement_date    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    reason           TEXT,
-    notes            TEXT,
+    calculated_by_id BIGINT,
+    financialYear    VARCHAR(10) NOT NULL,
+    openingValue     DECIMAL(15, 2),
+    depreciationRate DECIMAL(6, 4),
+    depreciationAmt  DECIMAL(15, 2),
+    closingValue     DECIMAL(15, 2),
+    method           ENUM('STRAIGHT_LINE', 'DOUBLE_DECLINING', 'SUM_OF_YEARS') DEFAULT 'STRAIGHT_LINE',
+    calculatedAt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_asset_fy (asset_id, financialYear),
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
-    FOREIGN KEY (moved_by) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_movement_asset (asset_id),
-    INDEX idx_movement_date (movement_date)
+    FOREIGN KEY (calculated_by_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- MAINTENANCE REQUESTS TABLE
+-- 16. ASSET HEALTH SCORES
 -- =============================================================================
-CREATE TABLE maintenance_requests (
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    request_number    VARCHAR(50) NOT NULL UNIQUE,
-    asset_id          BIGINT NOT NULL,
-    requested_by      BIGINT NOT NULL,
-    assigned_to       BIGINT,
-    issue_type        ENUM('HARDWARE','SOFTWARE','NETWORK','PHYSICAL','PREVENTIVE','OTHER') NOT NULL,
-    priority          ENUM('LOW','MEDIUM','HIGH','CRITICAL') NOT NULL DEFAULT 'MEDIUM',
-    status            ENUM('OPEN','IN_PROGRESS','COMPLETED','CANCELLED','ON_HOLD') NOT NULL DEFAULT 'OPEN',
-    title             VARCHAR(255) NOT NULL,
-    description       TEXT NOT NULL,
-    estimated_cost    DECIMAL(10,2),
-    actual_cost       DECIMAL(10,2),
-    started_at        TIMESTAMP NULL DEFAULT NULL,
-    completed_at      TIMESTAMP NULL DEFAULT NULL,
-    downtime_hours    DECIMAL(8,2) DEFAULT 0,
-    resolution_notes  TEXT,
-    created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (asset_id)    REFERENCES assets(id) ON DELETE CASCADE,
-    FOREIGN KEY (requested_by) REFERENCES users(id),
-    FOREIGN KEY (assigned_to)  REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_maint_asset (asset_id),
-    INDEX idx_maint_status (status),
-    INDEX idx_maint_number (request_number)
-) ENGINE=InnoDB;
-
--- =============================================================================
--- MAINTENANCE HISTORY TABLE
--- =============================================================================
-CREATE TABLE maintenance_history (
-    id             BIGINT AUTO_INCREMENT PRIMARY KEY,
-    request_id     BIGINT NOT NULL,
-    asset_id       BIGINT NOT NULL,
-    action         VARCHAR(255) NOT NULL,
-    performed_by   BIGINT NOT NULL,
-    notes          TEXT,
-    cost_incurred  DECIMAL(10,2) DEFAULT 0,
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (request_id)   REFERENCES maintenance_requests(id) ON DELETE CASCADE,
-    FOREIGN KEY (asset_id)     REFERENCES assets(id) ON DELETE CASCADE,
-    FOREIGN KEY (performed_by) REFERENCES users(id),
-    INDEX idx_mhist_asset (asset_id),
-    INDEX idx_mhist_request (request_id)
-) ENGINE=InnoDB;
-
--- =============================================================================
--- WARRANTY TRACKING TABLE
--- =============================================================================
-CREATE TABLE warranty_tracking (
-    id                   BIGINT AUTO_INCREMENT PRIMARY KEY,
-    asset_id             BIGINT NOT NULL UNIQUE,
-    warranty_start_date  DATE,
-    warranty_end_date    DATE NOT NULL,
-    warranty_type        ENUM('MANUFACTURER','EXTENDED','AMC','NONE') DEFAULT 'MANUFACTURER',
-    vendor_id            BIGINT,
-    coverage_details     TEXT,
-    contact_number       VARCHAR(20),
-    support_email        VARCHAR(255),
-    contract_number      VARCHAR(100),
-    reminder_90_sent     BOOLEAN DEFAULT FALSE,
-    reminder_60_sent     BOOLEAN DEFAULT FALSE,
-    reminder_30_sent     BOOLEAN DEFAULT FALSE,
-    reminder_15_sent     BOOLEAN DEFAULT FALSE,
-    reminder_7_sent      BOOLEAN DEFAULT FALSE,
-    is_expired           BOOLEAN DEFAULT FALSE,
-    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (asset_id)  REFERENCES assets(id) ON DELETE CASCADE,
-    FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
-    INDEX idx_warranty_end (warranty_end_date),
-    INDEX idx_warranty_asset (asset_id)
-) ENGINE=InnoDB;
-
--- =============================================================================
--- ASSET DOCUMENTS TABLE
--- =============================================================================
-CREATE TABLE asset_documents (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    asset_id      BIGINT NOT NULL,
-    document_type ENUM('INVOICE','WARRANTY_CARD','MANUAL','INSURANCE','CONTRACT','OTHER') NOT NULL,
-    file_name     VARCHAR(255) NOT NULL,
-    file_path     VARCHAR(500) NOT NULL,
-    file_size     BIGINT,
-    mime_type     VARCHAR(100),
-    uploaded_by   BIGINT NOT NULL,
-    description   TEXT,
-    is_ocr_extracted BOOLEAN DEFAULT FALSE,
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (asset_id)    REFERENCES assets(id) ON DELETE CASCADE,
-    FOREIGN KEY (uploaded_by) REFERENCES users(id),
-    INDEX idx_doc_asset (asset_id)
-) ENGINE=InnoDB;
-
--- =============================================================================
--- DEPRECIATION RECORDS TABLE
--- =============================================================================
-CREATE TABLE depreciation_records (
-    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    asset_id          BIGINT NOT NULL,
-    financial_year    VARCHAR(10) NOT NULL,
-    opening_value     DECIMAL(12,2) NOT NULL,
-    depreciation_rate DECIMAL(5,2) NOT NULL,
-    depreciation_amt  DECIMAL(12,2) NOT NULL,
-    closing_value     DECIMAL(12,2) NOT NULL,
-    method            ENUM('STRAIGHT_LINE','WRITTEN_DOWN_VALUE') DEFAULT 'STRAIGHT_LINE',
-    calculated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    calculated_by     BIGINT,
-    FOREIGN KEY (asset_id)     REFERENCES assets(id) ON DELETE CASCADE,
-    FOREIGN KEY (calculated_by) REFERENCES users(id) ON DELETE SET NULL,
-    UNIQUE KEY uk_asset_fy (asset_id, financial_year),
-    INDEX idx_depr_asset (asset_id),
-    INDEX idx_depr_fy (financial_year)
-) ENGINE=InnoDB;
-
--- =============================================================================
--- ASSET HEALTH SCORES TABLE
--- =============================================================================
-CREATE TABLE asset_health_scores (
+CREATE TABLE IF NOT EXISTS asset_health_scores (
     id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
     asset_id            BIGINT NOT NULL UNIQUE,
-    health_score        DECIMAL(5,2) NOT NULL,
-    health_level        ENUM('EXCELLENT','GOOD','AVERAGE','POOR','CRITICAL') NOT NULL,
-    age_score           DECIMAL(5,2),
-    maintenance_score   DECIMAL(5,2),
-    repair_cost_score   DECIMAL(5,2),
-    downtime_score      DECIMAL(5,2),
-    warranty_score      DECIMAL(5,2),
-    risk_level          ENUM('LOW','MEDIUM','HIGH') DEFAULT 'LOW',
-    risk_score          DECIMAL(5,2),
-    next_maintenance_date DATE,
+    healthScore         DECIMAL(5, 2),
+    healthLevel         ENUM('EXCELLENT', 'GOOD', 'AVERAGE', 'POOR', 'CRITICAL'),
+    ageScore            DECIMAL(5, 2),
+    maintenanceScore    DECIMAL(5, 2),
+    repairCostScore     DECIMAL(5, 2),
+    downtimeScore       DECIMAL(5, 2),
+    warrantyScore       DECIMAL(5, 2),
+    riskLevel           ENUM('LOW', 'MEDIUM', 'HIGH'),
+    riskScore           DECIMAL(5, 2),
+    nextMaintenanceDate DATE,
     recommendations     TEXT,
-    calculated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
-    INDEX idx_health_score (health_score),
-    INDEX idx_health_level (health_level)
+    calculatedAt        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    createdAt           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt           TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- NOTIFICATIONS TABLE
+-- 17. NOTIFICATIONS
 -- =============================================================================
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
+    id         BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id    BIGINT NOT NULL,
+    type       ENUM('ASSET_ASSIGNED', 'ASSET_RETURNED', 'MAINTENANCE_ASSIGNED', 'MAINTENANCE_COMPLETE', 'WARRANTY_EXPIRING', 'WARRANTY_EXPIRED', 'SYSTEM', 'ALERT'),
+    title      VARCHAR(200) NOT NULL,
+    message    TEXT NOT NULL,
+    entityType VARCHAR(50),
+    entityId   BIGINT,
+    isRead     BOOLEAN DEFAULT FALSE,
+    sendEmail  BOOLEAN DEFAULT FALSE,
+    createdAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- =============================================================================
+-- 18. AUDIT LOGS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS audit_logs (
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id         BIGINT,
-    type            ENUM('ASSET_ASSIGNED','ASSET_RETURNED','WARRANTY_EXPIRY',
-                         'MAINTENANCE_COMPLETE','MAINTENANCE_OVERDUE',
-                         'ASSET_DISPOSED','SYSTEM','BUDGET_ALERT','RISK_ALERT') NOT NULL,
-    title           VARCHAR(255) NOT NULL,
-    message         TEXT NOT NULL,
-    reference_type  VARCHAR(50),
-    reference_id    BIGINT,
-    is_read         BOOLEAN DEFAULT FALSE,
-    is_email_sent   BOOLEAN DEFAULT FALSE,
-    email_sent_at   TIMESTAMP NULL DEFAULT NULL,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_notif_user (user_id),
-    INDEX idx_notif_read (is_read),
-    INDEX idx_notif_created (created_at)
+    performed_by_id BIGINT,
+    action          VARCHAR(50) NOT NULL,
+    entityType      VARCHAR(50) NOT NULL,
+    entityId        BIGINT,
+    oldValues       JSON,
+    newValues       JSON,
+    description     TEXT,
+    ipAddress       VARCHAR(50),
+    userAgent       VARCHAR(500),
+    createdAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (performed_by_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- AUDIT LOGS TABLE (Immutable)
+-- 19. BUDGET FORECASTS
 -- =============================================================================
-CREATE TABLE audit_logs (
-    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id       BIGINT,
-    user_email    VARCHAR(255),
-    action        VARCHAR(100) NOT NULL,
-    entity_type   VARCHAR(50)  NOT NULL,
-    entity_id     BIGINT,
-    old_values    JSON,
-    new_values    JSON,
-    description   TEXT,
-    ip_address    VARCHAR(45),
-    user_agent    VARCHAR(500),
-    status        ENUM('SUCCESS','FAILURE') DEFAULT 'SUCCESS',
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_audit_user (user_id),
-    INDEX idx_audit_entity (entity_type, entity_id),
-    INDEX idx_audit_action (action),
-    INDEX idx_audit_created (created_at)
+CREATE TABLE IF NOT EXISTS budget_forecasts (
+    id              BIGINT AUTO_INCREMENT PRIMARY KEY,
+    department_id   BIGINT,
+    forecastType    ENUM('REPLACEMENT', 'MAINTENANCE', 'UPGRADE', 'NEW_PURCHASE'),
+    financialYear   VARCHAR(10),
+    quarter         INT,
+    estimatedAmount DECIMAL(15, 2),
+    actualAmount    DECIMAL(15, 2),
+    description     TEXT,
+    status          ENUM('DRAFT', 'APPROVED', 'REJECTED', 'COMPLETED') DEFAULT 'DRAFT',
+    createdAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- BUDGET FORECASTS TABLE
+-- 20. AI CHAT HISTORIES
 -- =============================================================================
-CREATE TABLE budget_forecasts (
-    id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
-    financial_year      VARCHAR(10) NOT NULL,
-    department_id       BIGINT,
-    category_id         BIGINT,
-    forecast_type       ENUM('REPLACEMENT','MAINTENANCE','NEW_PURCHASE') NOT NULL,
-    estimated_amount    DECIMAL(12,2) NOT NULL,
-    actual_amount       DECIMAL(12,2),
-    asset_count         INT,
-    description         TEXT,
-    generated_by        BIGINT,
-    generated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-    FOREIGN KEY (category_id)   REFERENCES asset_categories(id) ON DELETE SET NULL,
-    FOREIGN KEY (generated_by)  REFERENCES users(id) ON DELETE SET NULL,
-    INDEX idx_budget_fy (financial_year)
-) ENGINE=InnoDB;
-
--- =============================================================================
--- AI CHAT HISTORY TABLE
--- =============================================================================
-CREATE TABLE ai_chat_history (
+CREATE TABLE IF NOT EXISTS ai_chat_histories (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id     BIGINT NOT NULL,
-    session_id  VARCHAR(100) NOT NULL,
-    role        ENUM('USER','ASSISTANT') NOT NULL,
-    content     TEXT NOT NULL,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_ai_session (session_id),
-    INDEX idx_ai_user (user_id)
+    sessionId   VARCHAR(100),
+    userMessage TEXT,
+    aiResponse  LONGTEXT,
+    tokensUsed  INT,
+    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- =============================================================================
--- Default Super Admin User (Password: Admin@123 - bcrypt)
+-- 21. QR SCAN LOGS
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS qr_scan_logs (
+    id            BIGINT AUTO_INCREMENT PRIMARY KEY,
+    asset_id      BIGINT NOT NULL,
+    scanned_by_id BIGINT,
+    user_email    VARCHAR(255),
+    device_info   VARCHAR(500),
+    ip_address    VARCHAR(50),
+    scanned_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
+    FOREIGN KEY (scanned_by_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- =============================================================================
+-- Default Super Admin Seed Data
 -- =============================================================================
 INSERT INTO departments (name, code, description) VALUES
     ('Information Technology', 'IT', 'IT Department'),
@@ -484,7 +473,7 @@ INSERT INTO departments (name, code, description) VALUES
     ('Operations', 'OPS', 'Operations Department'),
     ('Administration', 'ADMIN', 'Administration Department');
 
-INSERT INTO users (first_name, last_name, email, password, is_active, is_email_verified, department_id)
+INSERT INTO users (firstName, lastName, email, password, isActive, isEmailVerified, department_id)
 VALUES ('Super', 'Admin', 'superadmin@assetms.com',
         '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iYqiSfFp5II7m6bPSfaIHxHNVMme', -- Admin@123
         TRUE, TRUE, 1);
@@ -500,30 +489,30 @@ SELECT u.id, r.id FROM users u, roles r WHERE u.email = 'superadmin@assetms.com'
 CREATE OR REPLACE VIEW v_asset_summary AS
 SELECT
     a.id,
-    a.asset_tag,
+    a.assetTag,
     a.name,
     ac.name AS category,
     a.brand,
     a.model,
-    a.serial_number,
+    a.serialNumber,
     a.status,
-    a.purchase_cost,
-    a.current_value,
-    a.purchase_date,
-    a.warranty_expiry,
+    a.purchaseCost,
+    a.currentValue,
+    a.purchaseDate,
+    a.warrantyExpiry,
     d.name  AS department,
-    CONCAT(e.first_name, ' ', e.last_name) AS assigned_employee,
+    CONCAT(e.firstName, ' ', e.lastName) AS assigned_employee,
     v.name  AS vendor,
-    ahs.health_score,
-    ahs.health_level,
-    ahs.risk_level
+    ahs.healthScore,
+    ahs.healthLevel,
+    ahs.riskLevel
 FROM assets a
 LEFT JOIN asset_categories ac ON a.category_id = ac.id
 LEFT JOIN departments d ON a.department_id = d.id
-LEFT JOIN employees e ON a.assigned_to = e.id
+LEFT JOIN employees e ON a.assigned_to_id = e.id
 LEFT JOIN vendors v ON a.vendor_id = v.id
 LEFT JOIN asset_health_scores ahs ON a.id = ahs.asset_id
-WHERE a.is_active = TRUE;
+WHERE a.isActive = TRUE;
 
 -- Dashboard Stats View
 CREATE OR REPLACE VIEW v_dashboard_stats AS
@@ -532,9 +521,9 @@ SELECT
     SUM(CASE WHEN status = 'AVAILABLE' THEN 1 ELSE 0 END) AS available_assets,
     SUM(CASE WHEN status = 'ASSIGNED' THEN 1 ELSE 0 END) AS assigned_assets,
     SUM(CASE WHEN status = 'UNDER_REPAIR' THEN 1 ELSE 0 END) AS under_repair,
-    SUM(CASE WHEN warranty_expiry < CURDATE() AND warranty_expiry IS NOT NULL THEN 1 ELSE 0 END) AS expired_warranty,
+    SUM(CASE WHEN warrantyExpiry < CURDATE() AND warrantyExpiry IS NOT NULL THEN 1 ELSE 0 END) AS expired_warranty,
     SUM(CASE WHEN status = 'DISPOSED' THEN 1 ELSE 0 END) AS disposed_assets,
-    SUM(purchase_cost) AS total_purchase_value,
-    SUM(current_value) AS total_current_value
+    SUM(purchaseCost) AS total_purchase_value,
+    SUM(currentValue) AS total_current_value
 FROM assets
-WHERE is_active = TRUE;
+WHERE isActive = TRUE;
