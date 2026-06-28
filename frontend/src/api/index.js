@@ -59,16 +59,17 @@ export const maintenanceApi = {
 
 export const dashboardApi = {
   getStats: () => fallbackOnNetworkError(axiosClient.get('/dashboard/stats'), demoDashboard),
-  getCategoryChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/charts/category'), demoCharts.category),
-  getDepartmentChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/charts/department'), demoCharts.department),
-  getStatusChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/charts/status'), demoCharts.status),
-  getHealthChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/charts/health'), demoCharts.health),
+  getCategoryChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/category'), demoCharts.category),
+  getDepartmentChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/department'), demoCharts.department),
+  getStatusChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/status'), demoCharts.status),
+  getHealthChart: () => fallbackOnNetworkError(axiosClient.get('/dashboard/health'), demoCharts.health),
 }
 
 export const warrantyApi = {
   getAll: (params) => fallbackOnNetworkError(axiosClient.get('/warranty', { params }), demoWarrantyPage),
   getExpiring: (days, params) => fallbackOnNetworkError(axiosClient.get('/warranty/expiring', { params: { days, ...params } }), demoWarrantyPage),
   getByAsset: (assetId) => axiosClient.get(`/warranty/asset/${assetId}`),
+  update: (assetId, data) => axiosClient.put(`/warranty/asset/${assetId}`, data),
 }
 
 export const depreciationApi = {
@@ -81,6 +82,7 @@ export const healthApi = {
   getByAsset: (assetId) => axiosClient.get(`/health/asset/${assetId}`),
   calculateForAsset: (assetId) => axiosClient.post(`/health/calculate/${assetId}`),
   getHighRisk: (params) => axiosClient.get('/health/high-risk', { params }),
+  recalculateAll: () => axiosClient.post('/health/recalculate-all'),
 }
 
 export const reportApi = {
@@ -94,6 +96,18 @@ export const aiApi = {
   chat: (message) => fallbackOnNetworkError(
     axiosClient.post('/ai/chat', { message }),
     { message: `Demo response: backend is offline, but I understood your query: "${message}".` }
+  ),
+  getHistory: (page = 0, size = 20, search = '') => fallbackOnNetworkError(
+    axiosClient.get('/ai/history', { params: { page, size, search } }),
+    { data: { data: { rows: [], count: 0 } } }
+  ),
+  deleteHistoryItem: (id) => fallbackOnNetworkError(
+    axiosClient.delete(`/ai/history/${id}`),
+    { success: true }
+  ),
+  clearHistory: () => fallbackOnNetworkError(
+    axiosClient.delete('/ai/history'),
+    { success: true }
   ),
 }
 
@@ -128,6 +142,14 @@ export const auditApi = {
   getLogs: (params) => axiosClient.get('/audit-logs', { params }),
 }
 
+export const budgetApi = {
+  getAll: (params) => axiosClient.get('/budget', { params }),
+  getById: (id) => axiosClient.get(`/budget/${id}`),
+  create: (data) => axiosClient.post('/budget', data),
+  update: (id, data) => axiosClient.put(`/budget/${id}`, data),
+  delete: (id) => axiosClient.delete(`/budget/${id}`),
+}
+
 export const departmentApi = {
   getAll: () => fallbackOnNetworkError(axiosClient.get('/departments'), demoDepartments),
   create: (data) => axiosClient.post('/departments', data),
@@ -137,7 +159,7 @@ export const departmentApi = {
 
 export const publicApi = {
   getPassport: (assetTag) => fallbackOnNetworkError(
-    axiosClient.get(`/assets/public/passport/${assetTag}`),
+    axiosClient.get(`/assets/public/passport/${assetTag}?scan=true`),
     {
       asset: demoAssets.find(a => a.assetTag === assetTag) || demoAssets.find(a => String(a.id) === String(assetTag)) || demoAssets[0],
       allocations: demoAllocations.filter(al => al.assetTag === assetTag),

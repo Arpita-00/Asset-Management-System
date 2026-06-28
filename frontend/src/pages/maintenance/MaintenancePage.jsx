@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Search, Eye, Edit, Trash2, X, RefreshCw, Filter } from 'lucide-react'
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, Legend
+} from 'recharts'
 import { maintenanceApi, assetApi } from '../../api/index'
 import { formatDate, getErrorMessage } from '../../utils/formatters'
 import { useToast } from '../../hooks/useToast'
@@ -32,7 +35,7 @@ function MaintenanceModal({ item, assets, onClose, onSave }) {
           </h2>
           <button onClick={onClose} className="btn-icon"><X size={16} style={{ color: 'rgb(var(--text-muted))' }} /></button>
         </div>
-        <div className="p-6 grid grid-cols-2 gap-4">
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Asset */}
           <div className="col-span-2">
             <label className="form-label">Asset <span className="text-red-500">*</span></label>
@@ -93,6 +96,21 @@ function MaintenanceModal({ item, assets, onClose, onSave }) {
   )
 }
 
+// Custom Tooltip for Recharts
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-slate-900 border border-slate-750 p-2 shadow rounded text-xs text-white">
+      <p className="font-bold border-b border-slate-800 pb-1 mb-1">{label || 'Maintenance Metric'}</p>
+      {payload.map((p, i) => (
+        <p key={i} className="font-mono">
+          <span className="text-slate-400">{p.name}:</span> {p.name.toLowerCase().includes('cost') ? `₹${Number(p.value).toLocaleString()}` : p.value}
+        </p>
+      ))}
+    </div>
+  )
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function MaintenancePage() {
   const { isAdmin } = useAuthStore()
@@ -148,6 +166,32 @@ export default function MaintenancePage() {
   const totalPages = data?.totalPages || 0
   const totalEl    = data?.totalElements || 0
 
+  // Cost by Type aggregation
+  const costByType = records.reduce((acc, r) => {
+    const type = r.maintenanceType || 'Other'
+    const cost = parseFloat(r.cost || 0)
+    if (!acc[type]) acc[type] = { name: type, cost: 0 }
+    acc[type].cost += cost
+    return acc
+  }, {})
+  const costChartData = Object.values(costByType).filter(item => item.cost > 0)
+
+  // Status aggregation
+  const statusCounts = records.reduce((acc, r) => {
+    const status = r.status || 'PENDING'
+    if (!acc[status]) acc[status] = { name: status, value: 0 }
+    acc[status].value += 1
+    return acc
+  }, {})
+  const statusChartData = Object.values(statusCounts)
+
+  const STATUS_COLORS = {
+    PENDING: '#f59e0b',
+    ONGOING: '#1E3A8A',
+    COMPLETED: '#10b981',
+    CANCELLED: '#ef4444'
+  }
+
   return (
     <div className="animate-fade-in">
       <div className="page-header">
@@ -158,10 +202,87 @@ export default function MaintenancePage() {
           </nav>
         </div>
         {isAdmin && isAdmin() && (
-          <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary btn-sm">
+          <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary btn-sm flex items-center gap-1.5">
             <Plus size={14} /> Add Maintenance
           </button>
         )}
+      </div>
+
+      {/* Visual Analytics & Maintenance Cost Analysis */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 text-[13px]">
+        {/* Left: Cost analysis by type */}
+        <div className="card p-5 space-y-4">
+          <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'rgb(var(--border-color))' }}>
+            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgb(var(--text-primary))' }}>
+              Maintenance Cost by Type (₹)
+            </h3>
+            <span className="text-[10px] text-slate-450 font-mono">BAR CHART</span>
+          </div>
+          {costChartData.length > 0 ? (
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={costChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                  <XAxis dataKey="name" stroke="rgb(var(--text-muted))" fontSize={11} tickLine={false} />
+                  <YAxis stroke="rgb(var(--text-muted))" fontSize={11} tickLine={false} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="cost" fill="var(--ams-blue-mid)" radius={[4, 4, 0, 0]} name="Repair Cost" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-56 flex items-center justify-center text-slate-500 text-xs">
+              No maintenance cost records to visualize
+            </div>
+          )}
+        </div>
+
+        {/* Right: Request distribution by status */}
+        <div className="card p-5 space-y-4">
+          <div className="flex items-center justify-between border-b pb-2" style={{ borderColor: 'rgb(var(--border-color))' }}>
+            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'rgb(var(--text-primary))' }}>
+              Request Status Distribution
+            </h3>
+            <span className="text-[10px] text-slate-450 font-mono">PIE CHART</span>
+          </div>
+          {statusChartData.length > 0 ? (
+            <div className="h-56 flex items-center justify-center relative">
+              <div className="w-1/2 h-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={45}
+                      outerRadius={65}
+                      paddingAngle={4}
+                      dataKey="value"
+                    >
+                      {statusChartData.map((entry, idx) => (
+                        <Cell key={`cell-${idx}`} fill={STATUS_COLORS[entry.name] || '#64748b'} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="w-1/2 space-y-2 text-xs">
+                {statusChartData.map((entry, idx) => (
+                  <div key={entry.name} className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: STATUS_COLORS[entry.name] || '#64748b' }} />
+                    <span className="font-medium text-slate-300">{entry.name}</span>
+                    <span className="font-mono text-slate-400">({entry.value})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="h-56 flex items-center justify-center text-slate-500 text-xs">
+              No tickets to visualize
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -201,7 +322,7 @@ export default function MaintenancePage() {
           </div>
         ) : (
           <>
-            <div className="table-wrapper">
+            <div className="hidden md:block table-wrapper">
               <table className="table">
                 <thead>
                   <tr>
@@ -262,6 +383,71 @@ export default function MaintenancePage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile View Card List */}
+            <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
+              {records.length === 0 ? (
+                <div className="text-center py-12 px-4 flex flex-col items-center gap-2">
+                  <p className="text-sm" style={{ color: 'rgb(var(--text-muted))' }}>
+                    No maintenance records found.
+                  </p>
+                </div>
+              ) : (
+                records.map(r => (
+                  <div key={r.id} className="p-4 space-y-3 text-left">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-xs font-bold text-red-700 dark:text-red-400">M#{r.id}</span>
+                        <h4 className="text-sm font-bold mt-1" style={{ color: 'rgb(var(--text-primary))' }}>
+                          {r.assetName || '—'}
+                        </h4>
+                        <p className="text-xs mt-0.5 font-semibold text-slate-500">
+                          Type: {r.maintenanceType || '—'} • Asset: #{r.assetId}
+                        </p>
+                      </div>
+                      <span className={`badge ${statusClass(r.status)} text-[10px] px-2 py-0.5 rounded font-bold`}>
+                        {r.status || '—'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-slate-500">
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Started Date</span>
+                        <span className="text-slate-700 dark:text-slate-200">{formatDate(r.startDate) || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Next Due Date</span>
+                        <span className="text-slate-700 dark:text-slate-200">{formatDate(r.nextDueDate) || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Technician</span>
+                        <span className="text-slate-700 dark:text-slate-200">{r.technician || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Cost</span>
+                        <span className="text-slate-700 dark:text-slate-200">{r.cost ? `₹${r.cost}` : '—'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/40">
+                      <button className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1">
+                        <Eye size={12} /> View
+                      </button>
+                      {isAdmin && isAdmin() && (
+                        <>
+                          <button onClick={() => { setEditing(r); setShowModal(true) }} className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1">
+                            <Edit size={12} /> Edit
+                          </button>
+                          <button onClick={() => window.confirm('Delete?') && deleteMutation.mutate(r.id)} className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1 text-red-700 dark:text-red-400">
+                            <Trash2 size={12} /> Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             {totalPages > 1 && (

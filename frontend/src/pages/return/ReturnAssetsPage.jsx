@@ -123,7 +123,7 @@ export default function ReturnAssetsPage() {
           </div>
         ) : (
           <>
-            <div className="table-wrapper">
+            <div className="hidden md:block table-wrapper">
               <table className="table">
                 <thead>
                   <tr>
@@ -195,6 +195,73 @@ export default function ReturnAssetsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile View Card List */}
+            <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
+              {allocations.length === 0 ? (
+                <div className="text-center py-16 px-4 flex flex-col items-center gap-3">
+                  <div className="w-12 h-12 rounded-full flex items-center justify-center bg-emerald-500/10 text-emerald-400">
+                    <AlertCircle size={20} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: 'rgb(var(--text-secondary))' }}>
+                      No active allocations found
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--text-muted))' }}>
+                      All assets are currently in inventory or match no query criteria.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                allocations.map(row => (
+                  <div key={row.id} className="p-4 space-y-3 text-left">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-xs font-bold text-red-700 dark:text-red-400">AL#{row.id}</span>
+                        <h4 className="text-sm font-bold mt-1" style={{ color: 'rgb(var(--text-primary))' }}>
+                          {row.assetName || `Asset #${row.assetId}`}
+                        </h4>
+                        <p className="text-xs mt-0.5 text-slate-500 font-semibold">
+                          Tag: {row.assetTag || '—'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-slate-500">
+                      <div className="col-span-2">
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Assigned To</span>
+                        <span className="text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                          <User size={13} className="text-indigo-400" />
+                          {row.employeeName || `Employee #${row.employeeId}`}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Allocation Date</span>
+                        <span className="text-slate-700 dark:text-slate-200">{formatDate(row.allocatedDate) || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Expected Return</span>
+                        <span className="text-slate-700 dark:text-slate-200">{formatDate(row.expectedReturn) || '—'}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Purpose</span>
+                        <span className="text-slate-700 dark:text-slate-200">{row.purpose || '—'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/40">
+                      <button
+                        onClick={() => handleOpenReturnModal(row)}
+                        className="btn-primary btn-sm py-1.5 px-3 flex items-center gap-1"
+                        style={{ background: 'var(--ams-blue-mid)' }}
+                      >
+                        <RotateCcw size={12} /> Process Return
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             {/* Pagination */}

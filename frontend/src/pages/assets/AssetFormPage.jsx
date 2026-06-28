@@ -14,12 +14,27 @@ export default function AssetFormPage({ assetId }) {
   const { success, error } = useToast()
   const isEditing = !!assetId
   const [imagePreview, setImagePreview] = useState(null)
+  const [imageFile, setImageFile] = useState(null)
+  const [imageRemoved, setImageRemoved] = useState(false)
 
   const { data: existingAsset } = useQuery({
     queryKey: ['assets', assetId],
     queryFn: () => assetApi.getById(assetId).then(r => r.data.data || r.data),
     enabled: isEditing,
   })
+
+  React.useEffect(() => {
+    if (existingAsset?.imageUrl) {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+      const serverUrl = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+      const previewUrl = existingAsset.imageUrl.startsWith('http')
+        ? existingAsset.imageUrl
+        : `${serverUrl}/${existingAsset.imageUrl}`;
+      setImagePreview(previewUrl);
+    } else {
+      setImagePreview(null);
+    }
+  }, [existingAsset])
 
   const { data: departments = [] } = useQuery({
     queryKey: ['departments'],
@@ -41,10 +56,32 @@ export default function AssetFormPage({ assetId }) {
   })
 
   const mutation = useMutation({
-    mutationFn: (data) => isEditing ? assetApi.update(assetId, data) : assetApi.create(data),
-    onSuccess: () => {
+    mutationFn: async (formData) => {
+      const payload = { ...formData }
+      if (imageRemoved && !imageFile) {
+        payload.imageUrl = null
+      }
+
+      let res;
+      if (isEditing) {
+        res = await assetApi.update(assetId, payload);
+      } else {
+        res = await assetApi.create(payload);
+      }
+
+      const asset = res.data?.data || res.data;
+      const assetIdToUse = asset.id || assetId;
+
+      if (imageFile && assetIdToUse) {
+        await assetApi.uploadImage(assetIdToUse, imageFile);
+      }
+
+      return asset;
+    },
+    onSuccess: (asset) => {
       success(isEditing ? 'Asset updated successfully!' : 'Asset created successfully!')
       qc.invalidateQueries(['assets'])
+      qc.invalidateQueries(['assets', assetId])
       qc.invalidateQueries(['dashboard'])
       navigate('/assets')
     },
@@ -54,10 +91,18 @@ export default function AssetFormPage({ assetId }) {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0]
     if (file) {
+      setImageFile(file)
+      setImageRemoved(false)
       const reader = new FileReader()
       reader.onload = ev => setImagePreview(ev.target.result)
       reader.readAsDataURL(file)
     }
+  }
+
+  const handleRemoveImage = () => {
+    setImagePreview(null)
+    setImageFile(null)
+    setImageRemoved(true)
   }
 
   const F = ({ name, label, type = 'text', placeholder, required, options, multiline, span }) => (
@@ -146,7 +191,7 @@ export default function AssetFormPage({ assetId }) {
 
           {/* ── Right: Upload Image ────────────────────────────────────────── */}
           <div className="lg:col-span-1">
-            <div className="card overflow-hidden sticky top-24">
+            <div className="card overflow-hidden lg:sticky lg:top-24">
               <div className="px-5 py-4 border-b" style={{ borderColor: 'rgb(var(--border-color))' }}>
                 <h2 className="text-sm font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>
                   Upload Image
@@ -161,7 +206,8 @@ export default function AssetFormPage({ assetId }) {
                   >
                     {imagePreview ? (
                       <img src={imagePreview} alt="Preview"
-                           className="w-full max-h-40 object-contain rounded-lg mb-3" />
+                           className="w-full max-h-40 object-contain rounded-lg mb-3"
+                           onError={() => setImagePreview(null)} />
                     ) : (
                       <>
                         <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-3"
@@ -188,7 +234,7 @@ export default function AssetFormPage({ assetId }) {
                 {imagePreview && (
                   <button
                     type="button"
-                    onClick={() => setImagePreview(null)}
+                    onClick={handleRemoveImage}
                     className="w-full btn-secondary btn-sm mt-3"
                   >
                     <X size={13} /> Remove Image

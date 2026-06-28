@@ -263,9 +263,104 @@ async function fetchDepreciation(financialYear) {
   });
 }
 
+async function generateSingleAssetPdf(assetId) {
+  const assetService = require('./assetService');
+  const asset = await assetService.findByIdentifier(assetId);
+  const identifier = asset.assetUniqueId || asset.assetTag;
+
+  return new Promise((resolve) => {
+    const doc = new PDFDocument({ margin: 40 });
+    const buffers = [];
+    doc.on('data', buffers.push.bind(buffers));
+    doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+    // PDF Style helper
+    const drawDivider = (y) => {
+      doc.moveTo(40, y).lineTo(570, y).strokeColor('#cbd5e1').lineWidth(0.5).stroke();
+    };
+
+    // Header Branding
+    doc.fillColor('#1e293b').fontSize(16).font('Helvetica-Bold').text('INDIAN RAILWAYS AMS', 40, 45);
+    doc.fillColor('#64748b').fontSize(8).font('Helvetica').text('Asset Passport & Technical Specifications', 40, 65);
+    doc.fillColor('#ef4444').font('Helvetica-Bold').fontSize(10).text('OFFICIAL VERIFIED', 460, 47, { align: 'right' });
+    
+    drawDivider(80);
+
+    // Main Asset Box
+    doc.fillColor('#0f172a').fontSize(12).font('Helvetica-Bold').text('1. GENERAL ASSET DETAILS', 40, 95);
+    doc.font('Helvetica').fontSize(10).fillColor('#334155');
+
+    let y = 115;
+    const drawField = (label, val) => {
+      doc.font('Helvetica-Bold').text(label + ':', 40, y, { width: 150 });
+      doc.font('Helvetica').text(String(val ?? '—'), 180, y, { width: 380 });
+      y += 18;
+    };
+
+    drawField('Asset Tag / Code', asset.assetTag);
+    drawField('Secure Asset ID', identifier);
+    drawField('Asset Name', asset.name);
+    drawField('Category', asset.categoryName);
+    drawField('Brand / Vendor', `${asset.brand || 'N/A'} / ${asset.vendorName || 'N/A'}`);
+    drawField('Model Name', asset.model);
+    drawField('Serial Number', asset.serialNumber);
+    drawField('Current Status', asset.status);
+    drawField('Deployment Location', asset.currentLocation);
+    drawField('Owning Department', asset.departmentName);
+    drawField('Assigned Employee', asset.assignedToName);
+
+    drawDivider(y + 5);
+    y += 20;
+
+    // Technical / Specifications Box
+    doc.fillColor('#0f172a').fontSize(12).font('Helvetica-Bold').text('2. TECHNICAL PARAMETERS', 40, y);
+    y += 20;
+    doc.font('Helvetica').fontSize(10).fillColor('#334155');
+
+    drawField('Description', asset.description);
+    
+    if (asset.specifications) {
+      try {
+        const specs = typeof asset.specifications === 'string' ? JSON.parse(asset.specifications) : asset.specifications;
+        if (specs && typeof specs === 'object') {
+          Object.keys(specs).forEach(key => {
+            drawField(key, specs[key]);
+          });
+        }
+      } catch (e) {
+        drawField('Specifications Raw', asset.specifications);
+      }
+    }
+
+    drawDivider(y + 5);
+    y += 20;
+
+    // Financials & Warranty Box
+    doc.fillColor('#0f172a').fontSize(12).font('Helvetica-Bold').text('3. VALUATION & WARRANTY DETAILS', 40, y);
+    y += 20;
+    doc.font('Helvetica').fontSize(10).fillColor('#334155');
+
+    const formatINR = (val) => val ? `₹${parseFloat(val).toLocaleString('en-IN')}` : '—';
+    const formatDateStr = (val) => val ? new Date(val).toLocaleDateString('en-GB') : '—';
+
+    drawField('Original Cost', formatINR(asset.purchaseCost));
+    drawField('Purchase Date', formatDateStr(asset.purchaseDate));
+    drawField('Current Book Value', formatINR(asset.currentValue));
+    drawField('Warranty Expiry Date', formatDateStr(asset.warrantyExpiry));
+    drawField('Overall Health Score', `${asset.healthScore || 'N/A'} / 100 (${asset.healthLevel || 'N/A'})`);
+    drawField('System Risk Category', asset.riskLevel || 'N/A');
+
+    // Footer Info
+    doc.fillColor('#94a3b8').fontSize(7).text(`Generated automatically by AMS Core on ${new Date().toLocaleString()}`, 40, 740);
+
+    doc.end();
+  });
+}
+
 module.exports = {
   generateAssetReportPdf, generateAssetReportExcel,
   generateMaintenanceReportPdf, generateMaintenanceReportExcel,
   generateWarrantyReportPdf, generateWarrantyReportExcel,
   generateDepreciationReportPdf, generateDepreciationReportExcel,
+  generateSingleAssetPdf,
 };

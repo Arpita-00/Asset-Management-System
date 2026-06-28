@@ -11,6 +11,7 @@ import { authApi } from '../../api/authApi'
 import { useToast } from '../../hooks/useToast'
 import { getErrorMessage } from '../../utils/formatters'
 import irLogo from '../../assets/images/indian_railways.png'
+import trainWatermark from '../../assets/images/train_watermark.png'
 
 // ─── Password Strength Meter ──────────────────────────────────────────────────
 const getStrength = (pw) => {
@@ -237,8 +238,18 @@ export default function RegisterPage() {
 
   // ─── UI ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col"
+    <div className="min-h-screen flex flex-col relative overflow-hidden"
          style={{ background: 'linear-gradient(160deg, #0A1628 0%, #0D2044 55%, #0A1628 100%)' }}>
+
+      {/* Background train watermark decorative overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
+        <img 
+          src={trainWatermark} 
+          alt="Railway Background Watermark" 
+          className="w-[85%] max-w-4xl object-contain opacity-[0.05] invert select-none" 
+          style={{ mixBlendMode: 'screen' }}
+        />
+      </div>
 
       {/* Gov header */}
       <div className="flex-shrink-0 px-6 py-2 flex items-center justify-between"
@@ -287,7 +298,7 @@ export default function RegisterPage() {
               {/* ── Step 0: Personal Details ── */}
               {step === 0 && (
                 <form onSubmit={hs1(onStep1Submit)} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
                              style={{ color: 'rgba(160,178,200,0.9)' }}>First Name</label>
@@ -342,7 +353,7 @@ export default function RegisterPage() {
                     {e1.email && <p className="mt-1 text-xs text-red-400">{e1.email.message}</p>}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wide"
                              style={{ color: 'rgba(160,178,200,0.9)' }}>Employee ID</label>

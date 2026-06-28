@@ -1,7 +1,8 @@
 const { Op } = require('sequelize');
 const {
   Asset, AssetCategory, Vendor, Department, Employee, User,
-  AssetMovement, AssetHealthScore,
+  AssetMovement, AssetHealthScore, AssetAllocation, AssetDocument,
+  MaintenanceRequest, WarrantyTracking, AuditLog, QrScanLog,
 } = require('../models');
 const { generateAssetTag } = require('../utils/assetTagGenerator');
 const { generateQrCode } = require('../utils/qrCodeGenerator');
@@ -48,6 +49,7 @@ async function createAsset(data, currentUserId) {
 
   const asset = await Asset.create({
     assetTag,
+    assetUniqueId: assetTag,
     name: data.name,
     categoryId: data.categoryId,
     brand: data.brand || null,
@@ -72,6 +74,8 @@ async function createAsset(data, currentUserId) {
   try {
     const qrUrl = await generateQrCode(assetTag);
     asset.qrCodeUrl = qrUrl;
+    asset.qrGeneratedAt = new Date();
+    asset.qrLastUpdated = new Date();
     await asset.save();
   } catch (err) {
     logger.warn(`QR generation failed for ${assetTag}: ${err.message}`);
@@ -119,10 +123,27 @@ async function updateAsset(id, data, currentUserId) {
     specifications: data.specifications,
     vendorId: data.vendorId || asset.vendorId,
     departmentId: data.departmentId || asset.departmentId,
+    imageUrl: data.imageUrl !== undefined ? data.imageUrl : asset.imageUrl,
   });
+
+  evictCachedAsset(asset);
 
   await auditLogService.log('UPDATE', 'ASSET', id, oldValues,
     { status: asset.status, name: asset.name }, 'Asset updated', currentUserId);
+
+  return toResponse(await findById(id));
+}
+
+async function updateAssetImage(id, imageUrl, currentUserId) {
+  const asset = await findById(id);
+  const oldValues = { imageUrl: asset.imageUrl };
+
+  await asset.update({ imageUrl });
+
+  evictCachedAsset(asset);
+
+  await auditLogService.log('UPDATE', 'ASSET', id, oldValues,
+    { imageUrl }, 'Asset image updated', currentUserId);
 
   return toResponse(await findById(id));
 }
@@ -140,6 +161,8 @@ async function deleteAsset(id, currentUserId) {
     status: 'DISPOSED',
     disposedAt: new Date(),
   });
+
+  evictCachedAsset(asset);
 
   await auditLogService.log('DELETE', 'ASSET', id, null, null,
     `Asset soft-deleted: ${asset.assetTag}`, currentUserId);
@@ -265,11 +288,39 @@ function getIncludes() {
   ];
 }
 
+const assetCache = new Map();
+const CACHE_TTL_MS = 30000; // 30 seconds
+
+function getCachedAsset(idOrTag) {
+  const cached = assetCache.get(String(idOrTag));
+  if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+    logger.debug(`Cache HIT for asset identifier: ${idOrTag}`);
+    return cached.data;
+  }
+  return null;
+}
+
+function setCachedAsset(idOrTag, data) {
+  assetCache.set(String(idOrTag), {
+    data,
+    timestamp: Date.now()
+  });
+}
+
+function evictCachedAsset(asset) {
+  if (!asset) return;
+  assetCache.delete(String(asset.id));
+  if (asset.assetTag) assetCache.delete(String(asset.assetTag));
+  if (asset.assetUniqueId) assetCache.delete(String(asset.assetUniqueId));
+  logger.debug(`Evicted asset from cache: ID ${asset.id}`);
+}
+
 function toResponse(asset) {
   const a = asset.toJSON ? asset.toJSON() : asset;
   return {
     id: a.id,
     assetTag: a.assetTag,
+    assetUniqueId: a.assetUniqueId,
     name: a.name,
     brand: a.brand,
     model: a.model,
@@ -281,12 +332,15 @@ function toResponse(asset) {
     warrantyExpiry: a.warrantyExpiry,
     status: a.status,
     qrCodeUrl: a.qrCodeUrl,
+    qrGeneratedAt: a.qrGeneratedAt,
+    qrLastUpdated: a.qrLastUpdated,
     imageUrl: a.imageUrl,
     description: a.description,
     specifications: a.specifications,
     isActive: a.isActive,
     categoryId: a.category?.id || a.categoryId,
     categoryName: a.category?.name || null,
+    usefulLife: a.category?.usefulLife || null,
     vendorId: a.vendor?.id || a.vendorId,
     vendorName: a.vendor?.name || null,
     departmentId: a.department?.id || a.departmentId,
@@ -304,6 +358,228 @@ function toResponse(asset) {
   };
 }
 
+async function findByIdentifier(idOrTag) {
+  const cached = getCachedAsset(idOrTag);
+  if (cached) return cached;
+
+  const isNumeric = /^\d+$/.test(idOrTag);
+  const where = { isActive: true };
+  if (isNumeric) {
+    where.id = idOrTag;
+  } else {
+    where[Op.or] = [
+      { assetTag: idOrTag },
+      { assetUniqueId: idOrTag }
+    ];
+  }
+  const asset = await Asset.findOne({
+    where,
+    include: getIncludes(),
+  });
+  if (!asset) throw new ResourceNotFoundError('Asset', 'identifier', idOrTag);
+
+  setCachedAsset(String(asset.id), asset);
+  if (asset.assetTag) setCachedAsset(asset.assetTag, asset);
+  if (asset.assetUniqueId) setCachedAsset(asset.assetUniqueId, asset);
+
+  return asset;
+}
+
+async function generateQr(id, currentUserId) {
+  const asset = await findById(id);
+  const identifier = asset.assetUniqueId || asset.assetTag;
+  const qrUrl = await generateQrCode(identifier);
+  
+  asset.qrCodeUrl = qrUrl;
+  asset.qrLastUpdated = new Date();
+  await asset.save();
+
+  evictCachedAsset(asset);
+
+  // Send email to admin
+  try {
+    const { sendQrEmail } = require('./emailService');
+    const path = require('path');
+    const config = require('../config/env');
+    const qrCodePath = path.join(path.resolve(config.app.qrDir), `${identifier}.png`);
+    
+    const currentUser = await User.findByPk(currentUserId);
+    const recipientEmail = currentUser?.email || 'admin@company.com';
+    await sendQrEmail(recipientEmail, asset.name, identifier, qrCodePath);
+  } catch (err) {
+    logger.warn(`Failed to email QR code for ${identifier}: ${err.message}`);
+  }
+
+  await auditLogService.log('UPDATE', 'ASSET', asset.id, { qrCodeUrl: asset.qrCodeUrl },
+    { qrCodeUrl: asset.qrCodeUrl, qrLastUpdated: asset.qrLastUpdated }, 'Regenerated QR Code', currentUserId);
+
+  return toResponse(asset);
+}
+
+async function getAssetHistory(assetId) {
+  const asset = await findByIdentifier(assetId);
+  const realAssetId = asset.id;
+
+  const [allocations, movements, audits] = await Promise.all([
+    AssetAllocation.findAll({
+      where: { assetId: realAssetId },
+      include: [
+        { model: Employee, as: 'employee', attributes: ['id', 'firstName', 'lastName'] },
+        { model: User, as: 'allocatedBy', attributes: ['id', 'firstName', 'lastName'] }
+      ]
+    }),
+    AssetMovement.findAll({
+      where: { assetId: realAssetId },
+      include: [{ model: User, as: 'movedBy', attributes: ['id', 'firstName', 'lastName'] }]
+    }),
+    AuditLog.findAll({
+      where: { entityType: 'ASSET', entityId: realAssetId }
+    })
+  ]);
+
+  const timeline = [];
+
+  const createAudit = audits.find(a => a.action === 'CREATE');
+  timeline.push({
+    type: 'CREATED',
+    title: 'Asset Created',
+    description: createAudit ? createAudit.description : `Asset ${asset.name} was registered.`,
+    date: createAudit ? createAudit.createdAt : asset.createdAt,
+    user: createAudit?.userEmail || 'System'
+  });
+
+  allocations.forEach(alloc => {
+    const employeeName = alloc.employee ? `${alloc.employee.firstName} ${alloc.employee.lastName}` : 'Unknown Employee';
+    const userName = alloc.allocatedBy ? `${alloc.allocatedBy.firstName} ${alloc.allocatedBy.lastName}` : 'Admin';
+    
+    timeline.push({
+      type: 'ASSIGNED',
+      title: 'Asset Allocated',
+      description: `Assigned to employee ${employeeName}. Purpose: ${alloc.purpose || 'General'}.`,
+      date: alloc.allocatedDate,
+      user: userName
+    });
+
+    if (alloc.actualReturn) {
+      const returnedToUser = alloc.returnedTo ? `${alloc.returnedTo.firstName} ${alloc.returnedTo.lastName}` : 'Admin';
+      timeline.push({
+        type: 'RETURNED',
+        title: 'Asset Returned',
+        description: `Returned by employee ${employeeName}. Notes: ${alloc.notes || 'None'}.`,
+        date: alloc.actualReturn,
+        user: returnedToUser
+      });
+    }
+  });
+
+  movements.forEach(m => {
+    if (m.movementType === 'ALLOCATION' || m.movementType === 'RETURN') return;
+
+    let desc = m.reason || `Location or department shift.`;
+    if (m.fromLocation && m.toLocation) {
+      desc = `Moved location from "${m.fromLocation}" to "${m.toLocation}". ${m.reason || ''}`;
+    } else if (m.fromDepartment && m.toDepartment) {
+      desc = `Transferred department from "${m.fromDepartment}" to "${m.toDepartment}". ${m.reason || ''}`;
+    }
+
+    const userName = m.movedBy ? `${m.movedBy.firstName} ${m.movedBy.lastName}` : 'System';
+
+    timeline.push({
+      type: m.movementType === 'TRANSFER' ? 'TRANSFERRED' : m.movementType,
+      title: `Asset ${m.movementType.replace('_', ' ')}`,
+      description: desc,
+      date: m.movementDate,
+      user: userName
+    });
+  });
+
+  timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  return timeline;
+}
+
+async function getAssetMaintenance(assetId) {
+  const asset = await findByIdentifier(assetId);
+  const realAssetId = asset.id;
+
+  const requests = await MaintenanceRequest.findAll({
+    where: { assetId: realAssetId },
+    include: [
+      { model: User, as: 'requestedBy', attributes: ['id', 'firstName', 'lastName'] },
+      { model: User, as: 'assignedTo', attributes: ['id', 'firstName', 'lastName'] }
+    ],
+    order: [['createdAt', 'DESC']]
+  });
+
+  return requests;
+}
+
+async function getAssetDocuments(assetId) {
+  const asset = await findByIdentifier(assetId);
+  const realAssetId = asset.id;
+
+  const documents = await AssetDocument.findAll({
+    where: { assetId: realAssetId },
+    include: [{ model: User, as: 'uploadedBy', attributes: ['id', 'firstName', 'lastName'] }],
+    order: [['createdAt', 'DESC']]
+  });
+
+  return documents;
+}
+
+async function reportIssue(assetId, data, currentUserId) {
+  const asset = await findByIdentifier(assetId);
+  const realAssetId = asset.id;
+
+  const count = await MaintenanceRequest.count();
+  const { generateMaintenanceNumber } = require('../utils/assetTagGenerator');
+  const requestNumber = generateMaintenanceNumber(count + 1);
+
+  const request = await MaintenanceRequest.create({
+    requestNumber,
+    assetId: realAssetId,
+    requestedById: currentUserId,
+    issueType: data.issueType || 'OTHER',
+    priority: data.priority || 'MEDIUM',
+    status: 'OPEN',
+    title: data.title || `Issue reported for asset ${asset.assetTag}`,
+    description: data.description || 'No description provided.',
+    estimatedCost: data.estimatedCost || 0.00
+  });
+
+  if (data.priority === 'CRITICAL' || data.priority === 'HIGH') {
+    asset.status = 'UNDER_REPAIR';
+    await asset.save();
+    await recordMovement(realAssetId, 'REPAIR_CENTER', {
+      reason: `Flagged for maintenance: ${requestNumber}. Priority: ${data.priority}`,
+      fromLocation: asset.currentLocation,
+      toLocation: 'Repair Center'
+    }, currentUserId);
+  }
+
+  await auditLogService.log('CREATE', 'MAINTENANCE_REQUEST', request.id, null,
+    { requestNumber, assetId: realAssetId }, `Maintenance reported: ${requestNumber}`, currentUserId);
+
+  evictCachedAsset(asset);
+
+  return request;
+}
+
+async function logQrScan(assetId, userId, userEmail, ipAddress, userAgent) {
+  try {
+    await QrScanLog.create({
+      assetId,
+      scannedById: userId || null,
+      userEmail: userEmail || null,
+      deviceInfo: userAgent || 'Unknown Device',
+      ipAddress: ipAddress || 'Unknown IP',
+      scannedAt: new Date()
+    });
+  } catch (err) {
+    logger.error(`Failed to log QR scan: ${err.message}`);
+  }
+}
+
 module.exports = {
   createAsset,
   updateAsset,
@@ -316,4 +592,12 @@ module.exports = {
   getStatusCounts,
   findById,
   toResponse,
+  findByIdentifier,
+  generateQr,
+  getAssetHistory,
+  getAssetMaintenance,
+  getAssetDocuments,
+  reportIssue,
+  logQrScan,
+  updateAssetImage,
 };

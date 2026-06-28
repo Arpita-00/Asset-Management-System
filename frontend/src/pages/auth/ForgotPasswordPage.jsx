@@ -7,6 +7,7 @@ import { authApi } from '../../api/authApi'
 import { useToast } from '../../hooks/useToast'
 import { getErrorMessage } from '../../utils/formatters'
 import irLogo from '../../assets/images/indian_railways.png'
+import trainWatermark from '../../assets/images/train_watermark.png'
 
 // ─── OTP Input (reusable) ─────────────────────────────────────────────────────
 const OtpInput = ({ value, onChange, hasError }) => {
@@ -126,8 +127,18 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col"
+    <div className="min-h-screen flex flex-col relative overflow-hidden"
          style={{ background: 'linear-gradient(160deg, #0A1628 0%, #0D2044 55%, #0A1628 100%)' }}>
+
+      {/* Background train watermark decorative overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
+        <img 
+          src={trainWatermark} 
+          alt="Railway Background Watermark" 
+          className="w-[85%] max-w-4xl object-contain opacity-[0.05] invert select-none" 
+          style={{ mixBlendMode: 'screen' }}
+        />
+      </div>
 
       <div className="flex-shrink-0 px-6 py-2 flex items-center justify-between"
            style={{ background: 'rgba(139,0,0,0.9)', borderBottom: '1px solid rgba(184,134,11,0.4)' }}>

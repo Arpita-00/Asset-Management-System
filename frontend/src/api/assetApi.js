@@ -17,5 +17,17 @@ export const assetApi = {
   },
   getMovements: (id, params) => axiosClient.get(`/assets/${id}/movements`, { params }),
   getCategories: () => fallbackOnNetworkError(axiosClient.get('/assets/categories'), demoCategories),
+  createCategory: (data) => axiosClient.post('/assets/categories', data),
+  updateCategory: (id, data) => axiosClient.put(`/assets/categories/${id}`, data),
+  deleteCategory: (id) => axiosClient.delete(`/assets/categories/${id}`),
+  getAllMovements: () => axiosClient.get('/assets/movements/all'),
   getStatusCounts: () => axiosClient.get('/assets/status-counts'),
+  
+  // Enterprise QR Module additions
+  generateQr: (id) => axiosClient.post(`/assets/${id}/generate-qr`),
+  getHistory: (assetId) => axiosClient.get(`/assets/${assetId}/history`),
+  getMaintenance: (assetId) => axiosClient.get(`/assets/${assetId}/maintenance`),
+  getDocuments: (assetId) => axiosClient.get(`/assets/${assetId}/documents`),
+  reportIssue: (assetId, data) => axiosClient.post(`/assets/${assetId}/report-issue`, data),
+  downloadSingleAssetPdf: (assetId) => axiosClient.get(`/reports/assets/${assetId}`, { responseType: 'blob' }),
 }

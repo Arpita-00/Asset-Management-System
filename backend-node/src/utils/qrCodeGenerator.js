@@ -25,8 +25,8 @@ async function generateQrCode(assetTag) {
   const filename = `${assetTag}.png`;
   const filePath = path.join(qrDir, filename);
 
-  // QR content — points to frontend asset passport URL
-  const qrContent = `${config.app.frontendUrl}/assets/passport/${assetTag}`;
+  // QR content — points to secure asset details scan URL
+  const qrContent = `${config.app.frontendUrl}/asset/${assetTag}`;
 
   await QRCode.toFile(filePath, qrContent, {
     type: 'png',

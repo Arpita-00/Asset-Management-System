@@ -24,6 +24,7 @@ const Notification = require('./Notification');
 const AuditLog = require('./AuditLog');
 const BudgetForecast = require('./BudgetForecast');
 const AiChatHistory = require('./AiChatHistory');
+const QrScanLog = require('./QrScanLog');
 
 // ── User ↔ Role (Many-to-Many) ───────────────────────────────────────────────
 User.belongsToMany(Role, { through: 'user_roles', foreignKey: 'user_id', otherKey: 'role_id' });
@@ -121,11 +122,16 @@ Department.hasMany(BudgetForecast, { foreignKey: 'department_id', as: 'budgetFor
 AiChatHistory.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 User.hasMany(AiChatHistory, { foreignKey: 'user_id', as: 'chatHistory' });
 
+// ── QrScanLog ────────────────────────────────────────────────────────────────
+QrScanLog.belongsTo(Asset, { foreignKey: 'asset_id', as: 'asset' });
+Asset.hasMany(QrScanLog, { foreignKey: 'asset_id', as: 'scanLogs' });
+QrScanLog.belongsTo(User, { foreignKey: 'scanned_by_id', as: 'scannedBy' });
+
 module.exports = {
   sequelize,
   Role, User, Department, Employee,
   AssetCategory, Vendor, VendorRating,
   Asset, AssetAllocation, AssetMovement, AssetHealthScore, AssetDocument,
   MaintenanceRequest, WarrantyTracking, DepreciationRecord,
-  Notification, AuditLog, BudgetForecast, AiChatHistory,
+  Notification, AuditLog, BudgetForecast, AiChatHistory, QrScanLog,
 };

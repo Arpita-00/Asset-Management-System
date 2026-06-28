@@ -42,7 +42,7 @@ function VendorModal({ item, onClose, onSave }) {
             <X size={16} style={{ color: 'rgb(var(--text-muted))' }} />
           </button>
         </div>
-        <div className="p-6 grid grid-cols-2 gap-4">
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {fields.map(f => (
             <div key={f.key} className={f.col === 2 ? 'col-span-2' : ''}>
               <label className="form-label">{f.label}</label>
@@ -231,7 +231,7 @@ export default function VendorsPage() {
           </nav>
         </div>
         {isAdmin && isAdmin() && (
-          <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary btn-sm">
+          <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary btn-sm flex items-center gap-1.5">
             <Plus size={14} /> Add Vendor
           </button>
         )}

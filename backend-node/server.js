@@ -31,6 +31,7 @@ const dashboardRoutes   = require('./src/routes/dashboard');
 const notificationRoutes = require('./src/routes/notifications');
 const auditRoutes       = require('./src/routes/auditLogs');
 const qrRoutes          = require('./src/routes/qr');
+const budgetRoutes      = require('./src/routes/budget');
 const reportRoutes      = require('./src/routes/reports');
 const aiRoutes          = require('./src/routes/ai');
 const ocrRoutes         = require('./src/routes/ocr');
@@ -119,6 +120,7 @@ app.use('/api/dashboard',     dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/audit-logs',    auditRoutes);
 app.use('/api/qr',            qrRoutes);
+app.use('/api/budget',        budgetRoutes);
 app.use('/api/reports',       reportRoutes);
 app.use('/api/ai',            aiRoutes);
 app.use('/api/ocr',           ocrRoutes);
@@ -151,18 +153,18 @@ async function bootstrap() {
 
     // Start scheduled jobs
     require('./src/scheduler');
-    logger.info('📅 Background schedulers started');
+    logger.info('Background schedulers started');
 
     // Start HTTP server
     const PORT = config.PORT || 8080;
     app.listen(PORT, () => {
-      logger.info(`🚀 ${config.app.name} v${config.app.version} started on port ${PORT}`);
-      logger.info(`📚 Swagger UI: http://localhost:${PORT}/api/swagger-ui`);
-      logger.info(`🔍 Health:     http://localhost:${PORT}/api/actuator/health`);
-      logger.info(`🌍 Env:        ${config.NODE_ENV}`);
+      logger.info(`${config.app.name} v${config.app.version} started on port ${PORT}`);
+      logger.info(`Swagger UI: http://localhost:${PORT}/api/swagger-ui`);
+      logger.info(`Health:     http://localhost:${PORT}/api/actuator/health`);
+      logger.info(`Env:        ${config.NODE_ENV}`);
     });
   } catch (err) {
-    logger.error(`❌ Failed to start server: ${err.message}`);
+    logger.error(`Failed to start server: ${err.message}`);
     process.exit(1);
   }
 }
@@ -177,6 +179,8 @@ process.on('unhandledRejection', (reason) => {
   logger.error(`Unhandled promise rejection: ${reason}`);
 });
 
-bootstrap();
+if (process.env.NODE_ENV !== 'test') {
+  bootstrap();
+}
 
-module.exports = app; // for testing
+module.exports = app;

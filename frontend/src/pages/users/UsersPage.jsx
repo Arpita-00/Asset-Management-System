@@ -37,7 +37,7 @@ function UserModal({ item, onClose, onSave, departments }) {
           </button>
         </div>
         <div className="p-6 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="form-label">First Name *</label>
               <input
@@ -83,7 +83,7 @@ function UserModal({ item, onClose, onSave, departments }) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="form-label">Contact Number</label>
               <input
@@ -100,11 +100,11 @@ function UserModal({ item, onClose, onSave, departments }) {
                 value={form.departmentId || ''}
                 onChange={e => set('departmentId', e.target.value)}
                 className="input text-sm select-reset"
-                style={{ background: 'rgba(255,255,255,0.06)' }}
+                style={{ background: 'rgb(var(--bg-elevated))', color: 'rgb(var(--text-primary))' }}
               >
-                <option value="">No Department</option>
+                <option value="" style={{ background: 'rgb(var(--bg-surface))', color: 'rgb(var(--text-primary))' }}>No Department</option>
                 {departments.map(d => (
-                  <option key={d.id} value={d.id} style={{ background: '#0d2044', color: '#fff' }}>{d.name}</option>
+                  <option key={d.id} value={d.id} style={{ background: 'rgb(var(--bg-surface))', color: 'rgb(var(--text-primary))' }}>{d.name}</option>
                 ))}
               </select>
             </div>
@@ -112,9 +112,9 @@ function UserModal({ item, onClose, onSave, departments }) {
 
           <div>
             <label className="form-label mb-2">Assign Roles *</label>
-            <div className="flex flex-wrap gap-4 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="flex flex-wrap gap-4 p-3 rounded-lg" style={{ background: 'rgb(var(--bg-elevated))', border: '1px solid rgb(var(--border-color))' }}>
               {['ROLE_EMPLOYEE', 'ROLE_ADMIN', 'ROLE_SUPER_ADMIN'].map(role => (
-                <label key={role} className="flex items-center gap-2 text-xs font-semibold cursor-pointer text-white/80 hover:text-white">
+                <label key={role} className="flex items-center gap-2 text-xs font-semibold cursor-pointer" style={{ color: 'rgb(var(--text-secondary))' }}>
                   <input
                     type="checkbox"
                     checked={(form.roles || []).includes(role)}
@@ -129,7 +129,7 @@ function UserModal({ item, onClose, onSave, departments }) {
 
           {item && (
             <div className="flex items-center gap-2 py-1">
-              <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer text-white/80 hover:text-white">
+              <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer" style={{ color: 'rgb(var(--text-secondary))' }}>
                 <input
                   type="checkbox"
                   checked={form.isActive}
@@ -274,7 +274,7 @@ export default function UsersPage() {
 
       {/* Users List Grid */}
       <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="table">
             <thead>
               <tr>
@@ -306,18 +306,18 @@ export default function UsersPage() {
                 users.map(u => (
                   <tr key={u.id}>
                     <td>
-                      <div className="font-semibold text-white">
+                      <div className="font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>
                         {u.firstName} {u.lastName}
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                      <div className="flex items-center gap-1.5 text-xs" style={{ color: 'rgb(var(--text-secondary))' }}>
                         <Mail size={12} className="text-slate-500" />
                         {u.email}
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                      <div className="flex items-center gap-1.5 text-xs" style={{ color: 'rgb(var(--text-secondary))' }}>
                         {u.phone ? (
                           <>
                             <Phone size={12} className="text-slate-500" />
@@ -329,7 +329,7 @@ export default function UsersPage() {
                       </div>
                     </td>
                     <td>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                      <div className="flex items-center gap-1.5 text-xs" style={{ color: 'rgb(var(--text-secondary))' }}>
                         <Building2 size={12} className="text-slate-500" />
                         {u.department?.name || <span className="text-slate-500">Unassigned</span>}
                       </div>
@@ -387,6 +387,84 @@ export default function UsersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile View Card List */}
+        <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
+          {users.length === 0 ? (
+            <div className="text-center py-8" style={{ color: 'rgb(var(--text-muted))' }}>
+              No users found.
+            </div>
+          ) : (
+            users.map(u => (
+              <div key={u.id} className="p-4 space-y-3 text-left">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold" style={{ color: 'rgb(var(--text-primary))' }}>
+                      {u.firstName} {u.lastName}
+                    </h4>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {u.roles.map(role => (
+                        <span
+                          key={role}
+                          className="px-1.5 py-0.5 rounded text-[9px] font-bold"
+                          style={{
+                            background: role === 'ROLE_SUPER_ADMIN' ? 'rgba(139,0,0,0.2)' : role === 'ROLE_ADMIN' ? 'rgba(184,134,11,0.2)' : 'rgba(21,128,61,0.2)',
+                            color: role === 'ROLE_SUPER_ADMIN' ? '#ff6b6b' : role === 'ROLE_ADMIN' ? '#f59e0b' : '#4ade80',
+                            border: role === 'ROLE_SUPER_ADMIN' ? '1px solid rgba(139,0,0,0.4)' : role === 'ROLE_ADMIN' ? '1px solid rgba(184,134,11,0.4)' : '1px solid rgba(21,128,61,0.4)',
+                          }}
+                        >
+                          {role.replace('ROLE_', '')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggleActive(u)}
+                    className="btn-icon"
+                    title={u.isActive ? 'Deactivate user' : 'Activate user'}
+                  >
+                    {u.isActive ? (
+                      <ToggleRight size={22} className="text-green-400" />
+                    ) : (
+                      <ToggleLeft size={22} className="text-slate-500" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-slate-500">
+                  <div className="col-span-2">
+                    <span className="block text-[9px] uppercase tracking-wider text-slate-400">Email Address</span>
+                    <a href={`mailto:${u.email}`} className="font-mono text-blue-600 dark:text-blue-400 hover:underline">{u.email}</a>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider text-slate-400">Phone Number</span>
+                    <span className="text-slate-700 dark:text-slate-200">{u.phone || '—'}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] uppercase tracking-wider text-slate-400">Department</span>
+                    <span className="text-slate-700 dark:text-slate-200">{u.department?.name || 'Unassigned'}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/40">
+                  <button
+                    onClick={() => {
+                      setEditing({
+                        ...u,
+                        departmentId: u.department?.id || '',
+                        password: ''
+                      })
+                      setShowModal(true)
+                    }}
+                    className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1"
+                  >
+                    <Edit size={12} /> Edit
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Pagination footer */}

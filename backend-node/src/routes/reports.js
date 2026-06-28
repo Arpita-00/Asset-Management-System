@@ -80,4 +80,13 @@ router.get('/depreciation', authenticate, async (req, res) => {
   }
 });
 
+// ─── Single Asset Passport PDF ───────────────────────────────────────────────
+
+router.get('/assets/:assetId', authenticate, async (req, res) => {
+  const buffer = await reportService.generateSingleAssetPdf(req.params.assetId);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="asset-passport-${req.params.assetId}.pdf"`);
+  res.send(buffer);
+});
+
 module.exports = router;

@@ -44,7 +44,7 @@ function AssignModal({ employees, assets, onClose, onSave }) {
             <X size={16} style={{ color: 'rgb(var(--text-muted))' }} />
           </button>
         </div>
-        <div className="p-6 grid grid-cols-2 gap-4">
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Asset Selection */}
           <div className="col-span-2">
             <label className="form-label">Select Asset <span className="text-red-500">*</span></label>
@@ -224,7 +224,7 @@ export default function AllocationPage() {
           </nav>
         </div>
         {isAdmin && isAdmin() && (
-          <button onClick={() => setShowModal(true)} className="btn-primary btn-sm">
+          <button onClick={() => setShowModal(true)} className="btn-primary btn-sm flex items-center gap-1.5">
             <Plus size={14} /> Assign Asset
           </button>
         )}
@@ -275,7 +275,7 @@ export default function AllocationPage() {
           </div>
         ) : (
           <>
-            <div className="table-wrapper">
+            <div className="hidden md:block table-wrapper">
               <table className="table">
                 <thead>
                   <tr>
@@ -347,6 +347,69 @@ export default function AllocationPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile View Card List */}
+            <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
+              {allocations.length === 0 ? (
+                <div className="text-center py-12 px-4 flex flex-col items-center gap-2">
+                  <p className="text-sm" style={{ color: 'rgb(var(--text-muted))' }}>
+                    No asset assignments found.
+                  </p>
+                </div>
+              ) : (
+                allocations.map(row => (
+                  <div key={row.id} className="p-4 space-y-3 text-left">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-xs font-bold text-red-700 dark:text-red-400">AL#{row.id}</span>
+                        <h4 className="text-sm font-bold mt-1" style={{ color: 'rgb(var(--text-primary))' }}>
+                          {row.assetName || `Asset #${row.assetId}`}
+                        </h4>
+                        <p className="text-xs mt-0.5 text-slate-500 font-semibold">
+                          Tag: {row.assetTag || '—'}
+                        </p>
+                      </div>
+                      <span className={`badge ${statusClass(row.status)} text-[10px] px-2 py-0.5 rounded font-bold`}>
+                        {row.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-slate-500">
+                      <div className="col-span-2">
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Assigned To</span>
+                        <span className="text-slate-700 dark:text-slate-200 flex items-center gap-1">
+                          <User size={11} className="text-blue-500" />
+                          {row.employeeName || `Employee #${row.employeeId}`}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Assigned Date</span>
+                        <span className="text-slate-700 dark:text-slate-200">{formatDate(row.allocatedDate) || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Expected Return</span>
+                        <span className="text-slate-700 dark:text-slate-200">{formatDate(row.expectedReturn) || '—'}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Purpose</span>
+                        <span className="text-slate-700 dark:text-slate-200">{row.purpose || '—'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/40">
+                      {row.status === 'ACTIVE' && isAdmin && isAdmin() && (
+                        <button
+                          onClick={() => handleReturn(row.id)}
+                          className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1 text-red-700 dark:text-red-400"
+                        >
+                          <RotateCcw size={12} /> Return
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             {/* Pagination */}

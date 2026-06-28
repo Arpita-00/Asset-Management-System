@@ -133,7 +133,9 @@ async function seedEnterpriseData() {
       { name: 'Air Conditioners' },
       { name: 'Furniture' },
       { name: 'Vehicles' },
-      { name: 'Software Licenses' }
+      { name: 'Software Licenses' },
+      { name: 'CCTV Cameras' },
+      { name: 'UPS Systems' }
     ];
     const categories = await AssetCategory.bulkCreate(categoriesData);
     logger.info(`✅ Seeded ${categories.length} Asset Categories`);
@@ -141,7 +143,7 @@ async function seedEnterpriseData() {
     // 6. Seed 100 Assets
     const assetsData = [];
     const categoryMapping = {
-      'Laptops': { brands: ['Dell', 'HP', 'Apple', 'Lenovo'], models: ['Latitude 5420', 'EliteBook 840', 'MacBook Pro 14', 'ThinkPad T14'], cost: 85000 },
+      'Laptops': { brands: ['Dell', 'HP', 'Apple', 'Lenovo'], models: ['Latitude 7440', 'EliteBook 840 G10', 'MacBook Pro 14', 'ThinkPad T14'], cost: 85000 },
       'Desktops': { brands: ['Dell', 'HP', 'Lenovo'], models: ['OptiPlex 7090', 'ProDesk 400', 'ThinkCentre M70q'], cost: 55000 },
       'Printers': { brands: ['HP', 'Canon', 'Epson'], models: ['LaserJet Pro M404dn', 'imageRUNNER 2206', 'EcoTank L3210'], cost: 25000 },
       'Servers': { brands: ['Dell', 'HP', 'Lenovo'], models: ['PowerEdge R750', 'ProLiant DL380 Gen10', 'ThinkSystem SR650'], cost: 250000 },
@@ -151,7 +153,9 @@ async function seedEnterpriseData() {
       'Air Conditioners': { brands: ['Voltas', 'Blue Star', 'Daikin'], models: ['Vectra 1.5T', 'Inverter split 1.5T', 'FTKF50'], cost: 42000 },
       'Furniture': { brands: ['Godrej Interio', 'Steelcase', 'Featherlite'], models: ['Workstation Table', 'Ergonomic Chair', 'Conference Table'], cost: 15000 },
       'Vehicles': { brands: ['Tata', 'Mahindra', 'Maruti'], models: ['Tigor EV', 'Bolero Neo', 'Eeco Cargo'], cost: 950000 },
-      'Software Licenses': { brands: ['Microsoft', 'Adobe', 'Oracle'], models: ['Office 365 Enterprise', 'Creative Cloud', 'Java SE Subscription'], cost: 12000 }
+      'Software Licenses': { brands: ['Microsoft', 'Adobe', 'Oracle'], models: ['Office 365 Enterprise', 'Creative Cloud', 'Java SE Subscription'], cost: 12000 },
+      'CCTV Cameras': { brands: ['Hikvision', 'Dahua', 'CP Plus'], models: ['DS-2CD2043G2-I', 'IPC-HFW2431S-S-S2', 'CP-UNC-TA21L3'], cost: 12000 },
+      'UPS Systems': { brands: ['APC', 'Microtek', 'Luminous'], models: ['Smart-UPS 1500VA', 'MAX+ 1000VA', 'Cruze 2KVA'], cost: 18000 }
     };
 
     const statuses = ['AVAILABLE', 'ASSIGNED', 'UNDER_REPAIR', 'DISPOSED'];
@@ -183,13 +187,17 @@ async function seedEnterpriseData() {
       const deprecRate = 0.15; // 15% straight line/reducing
       const currentValue = Math.max(0, Math.round(cost * Math.pow(1 - deprecRate, ageInYears)));
 
+      const assetSeq = String(i + 1).padStart(6, '0');
+      const tag = `AST-2026-${assetSeq}`;
+
       assetsData.push({
         name: `${brand} ${model}`,
-        assetTag: `AST-${10000 + i}`,
+        assetTag: tag,
+        assetUniqueId: tag,
         categoryId: category.id,
         brand,
         model,
-        serialNumber: `SN-${brand.substring(0,3).toUpperCase()}${i * 98765}`,
+        serialNumber: `SN-${brand.substring(0, 3).toUpperCase()}${i * 98765}`,
         purchaseDate,
         purchaseCost: cost,
         currentValue,
@@ -198,8 +206,9 @@ async function seedEnterpriseData() {
         assignedToId: emp ? emp.id : null,
         location: `Office Floor ${1 + (i % 4)}, Desk ${10 + (i % 40)}`,
         warrantyExpiry: expiryDate,
+        imageUrl: `uploads/assets/${category.name.toLowerCase().replace(/[^a-z0-9]/g, '_')}.png`,
         status,
-        qrCodeUrl: `AST-${10000 + i}`,
+        qrCodeUrl: `/uploads/qr/${tag}.png`,
         createdById: adminId
       });
     }
@@ -416,4 +425,141 @@ async function seedEnterpriseData() {
   }
 }
 
-module.exports = { seedEnterpriseData };
+async function resetAndSeedDatabase() {
+  try {
+    logger.info('🧹 Purging database records for seeding...');
+    
+    // Delete in reverse order of dependencies
+    await Notification.destroy({ where: {}, force: true }).catch(() => {});
+    await AssetMovement.destroy({ where: {}, force: true }).catch(() => {});
+    await AuditLog.destroy({ where: {}, force: true }).catch(() => {});
+    await WarrantyTracking.destroy({ where: {}, force: true }).catch(() => {});
+    await MaintenanceRequest.destroy({ where: {}, force: true }).catch(() => {});
+    await AssetAllocation.destroy({ where: {}, force: true }).catch(() => {});
+    await Asset.destroy({ where: {}, force: true }).catch(() => {});
+    await Employee.destroy({ where: {}, force: true }).catch(() => {});
+    await Vendor.destroy({ where: {}, force: true }).catch(() => {});
+    await AssetCategory.destroy({ where: {}, force: true }).catch(() => {});
+    await Department.destroy({ where: {}, force: true }).catch(() => {});
+    
+    logger.info('🌱 Database purged. Initiating fresh seed...');
+    
+    // Seed fresh data
+    const adminUser = await User.findOne({ where: { email: 'admin@company.com' } });
+    const adminId = adminUser ? adminUser.id : 1;
+
+    // 2. Seed 20 Departments
+    const departmentsData = [
+      { name: 'Signaling & Telecommunication (S&T)' },
+      { name: 'Electrical (General)' },
+      { name: 'Traction Distribution (TRD)' },
+      { name: 'Civil Engineering' },
+      { name: 'Mechanical (Carriage & Wagon)' },
+      { name: 'Operating (Traffic)' },
+      { name: 'Commercial' },
+      { name: 'Security (RPF)' },
+      { name: 'Safety' },
+      { name: 'Accounts & Finance' },
+      { name: 'Personnel (HR)' },
+      { name: 'Medical' }
+    ];
+    const departments = await Department.bulkCreate(departmentsData);
+    
+    // 3. Seed Vendors
+    const vendorsData = [
+      { name: 'Siemens Mobility India', vendorCode: 'SIEM-001', contactPerson: 'Mr. Anil Kumar', email: 'rail.sales@siemens.com', phone: '+91 98765 00010', address: 'Bandra Kurla Complex', city: 'Mumbai', state: 'Maharashtra', country: 'India', pincode: '400051', gstin: '27AAAAA0010A1Z1', website: 'https://siemens.com', avgRating: '4.80', totalRatings: 10, isActive: true },
+      { name: 'Alstom Transport India', vendorCode: 'ALST-002', contactPerson: 'Ms. Priya Sen', email: 'sales.india@alstom.com', phone: '+91 98765 00011', address: 'Tech Park, Whitefield', city: 'Bengaluru', state: 'Karnataka', country: 'India', pincode: '560066', gstin: '29AAAAA0011A1Z2', website: 'https://alstom.com', avgRating: '4.70', totalRatings: 8, isActive: true },
+      { name: 'Trimble Navigation Ltd', vendorCode: 'TRIM-003', contactPerson: 'Mr. John Doe', email: 'gedo.sales@trimble.com', phone: '+91 98765 00012', address: 'Global Tech Park', city: 'New Delhi', state: 'Delhi', country: 'India', pincode: '110001', gstin: '07AAAAA0012A1Z3', website: 'https://trimble.com', avgRating: '4.95', totalRatings: 12, isActive: true },
+      { name: 'Honeywell Security Solutions', vendorCode: 'HNYW-004', contactPerson: 'Mr. Rakesh Roy', email: 'cctv.sales@honeywell.com', phone: '+91 98765 00013', address: 'Sector 48', city: 'Gurugram', state: 'Haryana', country: 'India', pincode: '122018', gstin: '06AAAAA0013A1Z4', website: 'https://honeywell.com', avgRating: '4.50', totalRatings: 6, isActive: true },
+      { name: 'Schneider Electric India', vendorCode: 'SCHN-005', contactPerson: 'Ms. Neha Patel', email: 'ups.sales@schneider.com', phone: '+91 98765 00014', address: 'Industrial Area', city: 'Noida', state: 'Uttar Pradesh', country: 'India', pincode: '201301', gstin: '09AAAAA0014A1Z5', website: 'https://se.com', avgRating: '4.60', totalRatings: 9, isActive: true }
+    ];
+    const vendors = await Vendor.bulkCreate(vendorsData);
+
+    // 4. Seed Employees
+    const employeesData = [
+      { firstName: 'Rajesh', lastName: 'Sharma', email: 'rajesh.sharma@company.com', phone: '+91 99887 00010', departmentId: departments[0].id, designation: 'Senior Signal Engineer', employeeCode: 'EMP-1001', joinDate: new Date() },
+      { firstName: 'Suresh', lastName: 'Verma', email: 'suresh.verma@company.com', phone: '+91 99887 00011', departmentId: departments[5].id, designation: 'Station Master', employeeCode: 'EMP-1002', joinDate: new Date() },
+      { firstName: 'Amit', lastName: 'Kumar', email: 'amit.kumar@company.com', phone: '+91 99887 00012', departmentId: departments[1].id, designation: 'Electrical Maintainer', employeeCode: 'EMP-1003', joinDate: new Date() },
+      { firstName: 'Priya', lastName: 'Patel', email: 'priya.patel@company.com', phone: '+91 99887 00013', departmentId: departments[8].id, designation: 'Safety Officer', employeeCode: 'EMP-1004', joinDate: new Date() }
+    ];
+    const employees = await Employee.bulkCreate(employeesData);
+
+    // 5. Seed Asset Categories
+    const categoriesData = [
+      { name: 'Signal Controllers' },
+      { name: 'Point Machines' },
+      { name: 'Railway Servers' },
+      { name: 'Track Inspection Devices' },
+      { name: 'UPS Systems' },
+      { name: 'Platform Display Boards' },
+      { name: 'Network Switches' },
+      { name: 'Ticket Counter PCs' },
+      { name: 'Railway CCTV' },
+      { name: 'Generators' }
+    ];
+    const categories = await AssetCategory.bulkCreate(categoriesData);
+
+    // 6. Seed Assets
+    const assetsData = [
+      { name: 'Siemens Westrace II Signal Controller', assetTag: 'AST-2026-000001', assetUniqueId: 'AST-2026-000001', categoryId: categories[0].id, brand: 'Siemens', model: 'Westrace II', serialNumber: 'SN-SIEM-99881', purchaseDate: '2024-01-15', purchaseCost: 650000, currentValue: 550000, location: 'Bhubaneswar West Relay Room', warrantyExpiry: '2027-01-15', status: 'ASSIGNED', assignedToId: employees[0].id, imageUrl: 'uploads/assets/routers.png', qrCodeUrl: '/uploads/qr/AST-2026-000001.png', createdById: adminId },
+      { name: 'Alstom S700K Point Machine', assetTag: 'AST-2026-000002', assetUniqueId: 'AST-2026-000002', categoryId: categories[1].id, brand: 'Alstom', model: 'S700K', serialNumber: 'SN-ALST-55662', purchaseDate: '2024-03-10', purchaseCost: 120000, currentValue: 90000, location: 'Cuttack Yard Point 4A', warrantyExpiry: '2026-03-10', status: 'AVAILABLE', imageUrl: 'uploads/assets/vehicles.png', qrCodeUrl: '/uploads/qr/AST-2026-000002.png', createdById: adminId },
+      { name: 'HP ProLiant Railway Command Server', assetTag: 'AST-2026-000003', assetUniqueId: 'AST-2026-000003', categoryId: categories[2].id, brand: 'HP', model: 'ProLiant DL380', serialNumber: 'SN-HPE-88443', purchaseDate: '2023-06-20', purchaseCost: 350000, currentValue: 280000, location: 'Puri Zonal Data Center', warrantyExpiry: '2026-06-20', status: 'ASSIGNED', assignedToId: employees[1].id, imageUrl: 'uploads/assets/servers.png', qrCodeUrl: '/uploads/qr/AST-2026-000003.png', createdById: adminId },
+      { name: 'Trimble GEDO CE (Track Inspection Device)', assetTag: 'AST-2026-000004', assetUniqueId: 'AST-2026-000004', categoryId: categories[3].id, brand: 'Trimble', model: 'GEDO CE', serialNumber: 'SN-TRIM-11224', purchaseDate: '2025-01-10', purchaseCost: 850000, currentValue: 800000, location: 'Khurda Road Depot', warrantyExpiry: '2028-01-10', status: 'UNDER_REPAIR', imageUrl: 'uploads/assets/projectors.png', qrCodeUrl: '/uploads/qr/AST-2026-000004.png', createdById: adminId },
+      { name: 'APC Smart-UPS 5kVA (UPS System)', assetTag: 'AST-2026-000005', assetUniqueId: 'AST-2026-000005', categoryId: categories[4].id, brand: 'APC', model: 'Smart-UPS 5kVA', serialNumber: 'SN-APCC-44555', purchaseDate: '2023-08-05', purchaseCost: 95000, currentValue: 65000, location: 'Cuttack Yard Relay Room', warrantyExpiry: '2025-08-05', status: 'ASSIGNED', assignedToId: employees[2].id, imageUrl: 'uploads/assets/ups_systems.png', qrCodeUrl: '/uploads/qr/AST-2026-000005.png', createdById: adminId },
+      { name: 'Honeywell IP-Bullet 5MP (Railway CCTV)', assetTag: 'AST-2026-000009', assetUniqueId: 'AST-2026-000009', categoryId: categories[8].id, brand: 'Honeywell', model: 'IP-Bullet 5MP', serialNumber: 'SN-HNYW-54522', purchaseDate: '2025-05-12', purchaseCost: 12000, currentValue: 10000, location: 'Bhubaneswar Platform 1', warrantyExpiry: '2027-05-12', status: 'ASSIGNED', assignedToId: employees[3].id, imageUrl: 'uploads/assets/cctv_cameras.png', qrCodeUrl: '/uploads/qr/AST-2026-000009.png', createdById: adminId }
+    ];
+    const assets = await Asset.bulkCreate(assetsData);
+
+    // 7. Seed Maintenance Records
+    const maintenanceData = [
+      { assetId: assets[3].id, maintenanceType: 'PREVENTIVE', description: 'Laser sensor calibration & optical cleaning', cost: 12000, status: 'IN_PROGRESS', startDate: '2026-06-25', technician: 'S. K. Mohanty', notes: 'Scheduled inspection' },
+      { assetId: assets[0].id, maintenanceType: 'CORRECTIVE', description: 'Realignment of Relay contacts & firmware patch', cost: 18000, status: 'COMPLETED', startDate: '2026-05-10', endDate: '2026-05-12', technician: 'Amit Kumar', notes: 'Signal lag resolved' }
+    ];
+    await MaintenanceRequest.bulkCreate(maintenanceData);
+
+    // 8. Seed Warranty Tracking
+    const warrantyData = [
+      { assetId: assets[0].id, providerName: 'Siemens Mobility', contractNumber: 'WNT-SIEM-2024-01', startDate: '2024-01-15', expiryDate: '2027-01-15', terms: 'Full onsite hardware swap & software support' },
+      { assetId: assets[1].id, providerName: 'Alstom Transport', contractNumber: 'WNT-ALST-2024-02', startDate: '2024-03-10', expiryDate: '2026-03-10', terms: 'Mechanical components coverage & oil checkups' }
+    ];
+    await WarrantyTracking.bulkCreate(warrantyData);
+
+    // 9. Seed Audit Logs
+    const auditData = [
+      { assetId: assets[0].id, action: 'ALLOCATE', details: 'Siemens Westrace controller allocated to Rajesh Sharma.', performedById: adminId, ipAddress: '127.0.0.1' },
+      { assetId: assets[3].id, action: 'MAINTENANCE', details: 'Trimble GEDO sent to workshop queue.', performedById: adminId, ipAddress: '127.0.0.1' }
+    ];
+    await AuditLog.bulkCreate(auditData);
+
+    // 10. Seed Movements
+    const movementData = [
+      { assetId: assets[0].id, sourceLocation: 'Bhubaneswar Central Store', destinationLocation: 'Bhubaneswar West Relay Room', movementDate: '2024-01-16', status: 'COMPLETED', receivedById: employees[0].id }
+    ];
+    await AssetMovement.bulkCreate(movementData);
+
+    // 11. Seed Notifications
+    const notificationsData = [
+      { userId: adminId, title: 'Critical Health Warning', message: 'Alstom S700K Point machine health score degraded below 40%.', type: 'MAINTENANCE_COMPLETE', isRead: false },
+      { userId: adminId, title: 'Warranty Renewal Needed', message: 'Alstom Point Machine warranty expired on 2026-03-10.', type: 'WARRANTY_EXPIRING', isRead: false }
+    ];
+    await Notification.bulkCreate(notificationsData);
+
+    logger.info('🎉 Purge & Reseed of ECoR Divisional Demo Database completed successfully!');
+    
+    // Recalculate health scores
+    try {
+      const assetHealthService = require('../services/assetHealthService');
+      await assetHealthService.recalculateAll();
+      logger.info('✅ Health scores recalculated successfully');
+    } catch (err) {
+      logger.warn('⚠️ Could not run health score recalculation: ' + err.message);
+    }
+    
+    return true;
+  } catch (error) {
+    logger.error(`❌ Purge & Reseed database failed: ${error.message}`);
+    throw error;
+  }
+}
+
+module.exports = { seedEnterpriseData, resetAndSeedDatabase };

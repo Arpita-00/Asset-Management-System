@@ -14,7 +14,7 @@ const logger = require('./utils/logger');
 // Runs daily at 08:00.
 
 cron.schedule('0 8 * * *', async () => {
-  logger.info('⏰ Running warranty alert scheduler...');
+  logger.info('Running warranty alert scheduler...');
   try {
     const { WarrantyTracking, Asset, Employee, User } = require('./models');
     const notificationService = require('./services/notificationService');
@@ -81,7 +81,7 @@ cron.schedule('0 8 * * *', async () => {
             await notificationService.createNotification(
               assignedEmployee.user.id,
               'WARRANTY_EXPIRY',
-              `⚠️ Warranty Expiring: ${asset.name}`,
+              `Warranty Expiring: ${asset.name}`,
               `The warranty for asset ${asset.assetTag} expires in ${daysLeft} days.`,
               'ASSET', asset.id, false
             );
@@ -92,9 +92,9 @@ cron.schedule('0 8 * * *', async () => {
       }
     }
 
-    logger.info('✅ Warranty alert scheduler complete');
+    logger.info('Warranty alert scheduler complete');
   } catch (err) {
-    logger.error(`❌ Warranty alert scheduler error: ${err.message}`);
+    logger.error(`Warranty alert scheduler error: ${err.message}`);
   }
 }, {
   timezone: 'Asia/Kolkata', // IST — mirrors zone = "Asia/Kolkata"
@@ -104,13 +104,13 @@ cron.schedule('0 8 * * *', async () => {
 // Runs daily at 02:00.
 
 cron.schedule('0 2 * * *', async () => {
-  logger.info('⏰ Running health score recalculation scheduler...');
+  logger.info('Running health score recalculation scheduler...');
   try {
     const assetHealthService = require('./services/assetHealthService');
     await assetHealthService.recalculateAll();
-    logger.info('✅ Health score recalculation complete');
+    logger.info('Health score recalculation complete');
   } catch (err) {
-    logger.error(`❌ Health score scheduler error: ${err.message}`);
+    logger.error(`Health score scheduler error: ${err.message}`);
   }
 }, {
   timezone: 'Asia/Kolkata',
@@ -120,16 +120,16 @@ cron.schedule('0 2 * * *', async () => {
 // Runs annually on April 1 at 03:00 IST (start of Indian financial year)
 
 cron.schedule('0 3 1 4 *', async () => {
-  logger.info('⏰ Running annual depreciation calculation...');
+  logger.info('Running annual depreciation calculation...');
   try {
     const depreciationService = require('./services/depreciationService');
     const result = await depreciationService.bulkCalculate(null); // no user, system job
-    logger.info(`✅ Annual depreciation done. Success: ${result.success}, Failed: ${result.failed}`);
+    logger.info(`Annual depreciation done. Success: ${result.success}, Failed: ${result.failed}`);
   } catch (err) {
-    logger.error(`❌ Annual depreciation scheduler error: ${err.message}`);
+    logger.error(`Annual depreciation scheduler error: ${err.message}`);
   }
 }, {
   timezone: 'Asia/Kolkata',
 });
 
-logger.info('📅 Scheduled jobs registered: warranty alerts (08:00 IST), health scores (02:00 IST), depreciation (Apr 1, 03:00 IST)');
+logger.info('Scheduled jobs registered: warranty alerts (08:00 IST), health scores (02:00 IST), depreciation (Apr 1, 03:00 IST)');

@@ -2,24 +2,44 @@ import React, { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
+import SmartAssistant from './SmartAssistant'
+import GlobalSearchModal from './GlobalSearchModal'
+import SecurityHandler from '../common/SecurityHandler'
 import useThemeStore from '../../store/themeStore'
+import trainWatermark from '../../assets/images/train_watermark.png'
 
 /**
  * Main application layout — sidebar + top bar + page content.
  */
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { initTheme } = useThemeStore()
+  const { isDark, initTheme } = useThemeStore()
 
   useEffect(() => {
     initTheme()
   }, [initTheme])
 
   return (
-    <div className="min-h-screen bg-base">
+    <div className="min-h-screen bg-base relative overflow-hidden">
       {/* Tricolor top strip */}
       <div className="fixed top-0 left-0 right-0 h-1 z-50" style={{ background: 'var(--tricolor-gradient)' }} />
       
+      {/* Background train watermark decorative overlay */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center md:pl-[260px] pt-[96px]">
+        <img 
+          src={trainWatermark} 
+          alt="Railway Background Watermark" 
+          className={`w-[85%] md:w-[60%] max-w-3xl object-contain transition-all duration-300 ${
+            isDark 
+              ? 'opacity-[0.12] invert' 
+              : 'opacity-[0.18]'
+          }`} 
+          style={{
+            mixBlendMode: isDark ? 'screen' : 'multiply'
+          }}
+        />
+      </div>
+
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <TopBar onMenuClick={() => setSidebarOpen(o => !o)} />
       
@@ -50,6 +70,10 @@ export default function AppLayout() {
           </p>
         </footer>
       </main>
+
+      <SmartAssistant />
+      <GlobalSearchModal />
+      <SecurityHandler />
     </div>
   )
 }

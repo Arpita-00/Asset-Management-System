@@ -8,30 +8,32 @@ import NotFoundPage from './components/common/NotFoundPage'
 import { ProtectedRoute, PublicRoute, AdminRoute, SuperAdminRoute } from './components/layout/ProtectedRoute'
 
 // ─── Lazy-loaded routes (code splitting) ─────────────────────────────────────
-const AppLayout       = lazy(() => import('./components/layout/AppLayout'))
-const LoginPage       = lazy(() => import('./pages/auth/LoginPage'))
-const RegisterPage    = lazy(() => import('./pages/auth/RegisterPage'))
-const ForgotPassword  = lazy(() => import('./pages/auth/ForgotPasswordPage'))
-const DashboardPage   = lazy(() => import('./pages/dashboard/DashboardPage'))
-const AssetsPage      = lazy(() => import('./pages/assets/AssetsPage'))
-const AssetFormPage   = lazy(() => import('./pages/assets/AssetFormPage'))
+const AppLayout = lazy(() => import('./components/layout/AppLayout'))
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'))
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPasswordPage'))
+const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'))
+const AssetsPage = lazy(() => import('./pages/assets/AssetsPage'))
+const AssetFormPage = lazy(() => import('./pages/assets/AssetFormPage'))
 const AssetDetailPage = lazy(() => import('./pages/assets/AssetDetailPage'))
-const EmployeesPage   = lazy(() => import('./pages/employees/EmployeesPage'))
+const EmployeesPage = lazy(() => import('./pages/employees/EmployeesPage'))
 const MaintenancePage = lazy(() => import('./pages/maintenance/MaintenancePage'))
-const AllocationPage  = lazy(() => import('./pages/allocation/AllocationPage'))
-const VendorsPage     = lazy(() => import('./pages/vendors/VendorsPage'))
-const WarrantyPage    = lazy(() => import('./pages/warranty/WarrantyPage'))
+const AllocationPage = lazy(() => import('./pages/allocation/AllocationPage'))
+const VendorsPage = lazy(() => import('./pages/vendors/VendorsPage'))
 const DepreciationPage = lazy(() => import('./pages/depreciation/DepreciationPage'))
-const ReportsPage     = lazy(() => import('./pages/reports/ReportsPage'))
+const ReportsPage = lazy(() => import('./pages/reports/ReportsPage'))
 const AiAssistantPage = lazy(() => import('./pages/ai/AiAssistantPage'))
-const QrScannerPage   = lazy(() => import('./pages/qr/QrScannerPage'))
-const OcrScannerPage  = lazy(() => import('./pages/ocr/OcrScannerPage'))
+const QrScannerPage = lazy(() => import('./pages/qr/QrScannerPage'))
+const OcrScannerPage = lazy(() => import('./pages/ocr/OcrScannerPage'))
 const ReturnAssetsPage = lazy(() => import('./pages/return/ReturnAssetsPage'))
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'))
-const SettingsPage    = lazy(() => import('./pages/settings/SettingsPage'))
-const UsersPage       = lazy(() => import('./pages/users/UsersPage'))
+const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'))
+const UsersPage = lazy(() => import('./pages/users/UsersPage'))
 
 const AssetPassportPage = lazy(() => import('./pages/assets/AssetPassportPage'))
+
+const BudgetForecastPage = lazy(() => import('./pages/budget/BudgetForecastPage'))
+const AuditLogsPage = lazy(() => import('./pages/audit-logs/AuditLogsPage'))
 
 // ─── Query Client ──────────────────────────────────────────────────────────────
 const queryClient = new QueryClient({
@@ -99,55 +101,48 @@ export default function App() {
           <Routes>
             {/* Public auth routes */}
             <Route element={<PublicRoute />}>
-              <Route path="/login"           element={<LoginPage />} />
-              <Route path="/register"        element={<RegisterPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
             </Route>
 
             {/* Public unauthenticated Asset Passport route */}
             <Route path="/assets/passport/:assetTag" element={<AssetPassportPage />} />
+            <Route path="/asset/:assetTag" element={<AssetPassportPage />} />
 
             {/* Protected app routes */}
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard"        element={<DashboardPage />} />
-                <Route path="/assets"           element={<AssetsPage />} />
-                <Route path="/assets/:id"       element={<AssetDetailPage />} />
-                <Route path="/ai-assistant"     element={<AiAssistantPage />} />
-                <Route path="/qr-scanner"      element={<QrScannerPage />} />
-                <Route path="/ocr-scanner"      element={<OcrScannerPage />} />
-                <Route path="/maintenance"      element={<MaintenancePage />} />
-                <Route path="/return"           element={<ReturnAssetsPage />} />
-                <Route path="/notifications"    element={<NotificationsPage />} />
-                <Route path="/settings"         element={<SettingsPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/assets" element={<AssetsPage />} />
+                <Route path="/assets/:id" element={<AssetDetailPage />} />
+                <Route path="/ai-assistant" element={<AiAssistantPage />} />
+                <Route path="/qr-scanner" element={<QrScannerPage />} />
+                <Route path="/ocr-scanner" element={<OcrScannerPage />} />
+                <Route path="/maintenance" element={<MaintenancePage />} />
+                <Route path="/return" element={<ReturnAssetsPage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
 
                 {/* Admin-only routes */}
                 <Route element={<AdminRoute />}>
-                  <Route path="/assets/new"       element={<AssetFormPage />} />
-                  <Route path="/assets/:id/edit"  element={<EditAssetRoute />} />
-                  <Route path="/reports"          element={<ReportsPage />} />
-                  <Route path="/employees"        element={<EmployeesPage />} />
-                  <Route path="/allocation"       element={<AllocationPage />} />
-                  <Route path="/vendors"          element={<VendorsPage />} />
-                  <Route path="/warranty"         element={<WarrantyPage />} />
-                  <Route path="/depreciation"     element={<DepreciationPage />} />
+                  <Route path="/assets/new" element={<AssetFormPage />} />
+                  <Route path="/assets/:id/edit" element={<EditAssetRoute />} />
+                  <Route path="/reports" element={<ReportsPage />} />
+                  <Route path="/employees" element={<EmployeesPage />} />
+                  <Route path="/allocation" element={<AllocationPage />} />
+                  <Route path="/vendors" element={<VendorsPage />} />
+                  <Route path="/depreciation" element={<DepreciationPage />} />
 
-                  {/* Scaffolded Admin modules */}
-                  {[
-                    ['categories',   'Asset Categories'],
-                    ['movements',    'Asset Movements'],
-                    ['health',       'Asset Health Monitor'],
-                    ['budget',       'Budget Forecasting'],
-                  ].map(([path, title]) => (
-                    <Route key={path} path={`/${path}`} element={<ModulePlaceholder title={title} />} />
-                  ))}
+                  {/* Real Admin modules */}
+                  <Route path="/budget" element={<BudgetForecastPage />} />
                 </Route>
 
                 {/* Super Admin-only routes */}
                 <Route element={<SuperAdminRoute />}>
-                  <Route path="/users"            element={<UsersPage />} />
-                  <Route path="/audit-logs"       element={<ModulePlaceholder title="Audit Logs" />} />
+                  <Route path="/users" element={<UsersPage />} />
+                  <Route path="/audit-logs" element={<AuditLogsPage />} />
                 </Route>
               </Route>
             </Route>

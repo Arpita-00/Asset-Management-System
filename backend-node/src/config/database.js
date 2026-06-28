@@ -42,7 +42,7 @@ async function connectDatabase() {
     logger.info(`✅ Database connected: ${config.db.host}:${config.db.port}/${config.db.name}`);
 
     const models = require('../models');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     logger.info('✅ Database tables synchronized');
 
     await seedDefaultAuthData(models);

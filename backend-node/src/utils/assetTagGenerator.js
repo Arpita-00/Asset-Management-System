@@ -18,11 +18,12 @@ function getYYYYMM() {
 }
 
 /**
- * Generate asset tag: AST-202406-00001
+ * Generate asset tag: AST-2026-000001
  */
 function generateAssetTag(sequenceId) {
-  const seq = String(sequenceId).padStart(5, '0');
-  return `AST-${getYYYYMM()}-${seq}`;
+  const seq = String(sequenceId).padStart(6, '0');
+  const now = new Date();
+  return `AST-${now.getFullYear()}-${seq}`;
 }
 
 /**

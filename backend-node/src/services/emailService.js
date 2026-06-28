@@ -80,10 +80,49 @@ async function sendGenericNotificationEmail(to, recipientName, title, message) {
   await sendEmail(to, title, html);
 }
 
+async function sendQrEmail(to, assetName, assetTag, qrCodePath) {
+  try {
+    const filename = path.basename(qrCodePath);
+    await transporter.sendMail({
+      from: `"${config.mail.fromName}" <${config.mail.fromAddress}>`,
+      to,
+      subject: `QR Code for Asset: ${assetName} (${assetTag})`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 500px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <h2 style="color: #1e293b; margin-top: 0;">Asset QR Code Generated</h2>
+          <p>Hello Administrator,</p>
+          <p>Please find attached the generated QR Code for the following asset:</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 20px;">
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-weight: bold; color: #475569; width: 120px;">Asset Name:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a;">${assetName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-weight: bold; color: #475569;">Asset ID:</td>
+              <td style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; color: #0f172a; font-family: monospace;">${assetTag}</td>
+            </tr>
+          </table>
+          <p>The QR code is attached to this email as a PNG file.</p>
+        </div>
+      `,
+      attachments: [
+        {
+          filename: filename,
+          path: qrCodePath
+        }
+      ]
+    });
+    logger.info(`QR Code email sent to: ${to} for asset ${assetTag}`);
+  } catch (err) {
+    logger.error(`QR Code email sending failed to ${to}: ${err.message}`);
+  }
+}
+
 module.exports = {
   sendPasswordResetEmail,
   sendAssetAssignmentEmail,
   sendWarrantyExpiryEmail,
   sendMaintenanceCompleteEmail,
   sendGenericNotificationEmail,
+  sendQrEmail,
 };

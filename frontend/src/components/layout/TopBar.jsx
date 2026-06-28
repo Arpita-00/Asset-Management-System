@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Menu, Sun, Moon, Bell, Search, X, ChevronDown, LogOut, Settings, User } from 'lucide-react'
+import { Menu, Sun, Moon, Bell, Search, ChevronDown, LogOut, Settings, User } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import useThemeStore from '../../store/themeStore'
 import useAuthStore from '../../store/authStore'
 import useLanguageStore from '../../store/languageStore'
 import { useTranslation } from '../../utils/translations'
 import { notificationApi } from '../../api/index'
 import { initials } from '../../utils/formatters'
+import irLogo from '../../assets/images/indian_railways.png'
 
 export default function TopBar({ onMenuClick }) {
   const { isDark, toggleTheme } = useThemeStore()
@@ -15,11 +16,15 @@ export default function TopBar({ onMenuClick }) {
   const { lang, toggleLang } = useLanguageStore()
   const t = useTranslation(lang)
   const navigate = useNavigate()
+  const location = useLocation()
+  
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
   const userMenuRef = useRef(null)
 
-  // Premium widgets state
+  // East Coast Railway Zonal Divisions
+  const [currentDivision, setCurrentDivision] = useState('East Coast Railway (HQ-BBS)')
+
   const [fontScale, setFontScale] = useState(() => {
     const saved = localStorage.getItem('ams-font-scale')
     return saved ? parseFloat(saved) : 1.0
@@ -34,7 +39,7 @@ export default function TopBar({ onMenuClick }) {
   useEffect(() => {
     const updateTime = () => {
       const now = new Date()
-      setTimeStr(now.toLocaleTimeString('en-US', { hour12: true }))
+      setTimeStr(now.toLocaleTimeString('en-US', { hour12: false })) // 24h format for official NOC clock
     }
     updateTime()
     const timer = setInterval(updateTime, 1000)
@@ -54,7 +59,6 @@ export default function TopBar({ onMenuClick }) {
   })
   const unreadCount = unreadData || 0
 
-  // Close user menu on outside click
   useEffect(() => {
     const handler = (e) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
@@ -70,170 +74,204 @@ export default function TopBar({ onMenuClick }) {
     navigate('/login')
   }
 
+  const pathnames = location.pathname.split('/').filter(x => x)
+
   return (
     <header
-      className="fixed top-0 z-30 flex flex-col"
+      className="fixed top-0 z-30 flex flex-col left-0 md:left-[260px] right-0"
       style={{
-        left: 'var(--sidebar-width)',
-        right: 0,
         height: 'var(--topbar-height)',
         background: 'rgb(var(--bg-surface))',
         borderBottom: '1px solid rgb(var(--border-color))',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
       }}
     >
-      {/* 1. Official Government Top Strip */}
-      <div className="w-full flex items-center justify-between px-5 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
-           style={{ background: 'var(--railway-crimson)' }}>
-        <div className="flex items-center gap-4">
-          <span>भारत सरकार • Government of India</span>
-          <span className="hidden md:inline text-white/60">|</span>
-          <span className="hidden md:inline">रेल मंत्रालय • Ministry of Railways</span>
+      {/* 1. Official Government Header Strip */}
+      <div className="w-full flex items-center justify-between px-5 py-3 text-[10.5px] font-bold uppercase tracking-wider text-white select-none"
+           style={{ background: 'var(--railway-crimson)', minHeight: '36px' }}>
+        <div className="flex items-center gap-3 md:gap-5 flex-wrap">
+          <span className="text-[9px] md:text-[10.5px]">भारत सरकार <span className="hidden sm:inline">• Government of India</span></span>
+          <span className="hidden sm:inline text-white/40">|</span>
+          <span className="text-[9px] md:text-[10.5px]">रेल मंत्रालय <span className="hidden sm:inline">• Ministry of Railways</span></span>
+          <span className="hidden lg:inline text-white/40">|</span>
+          <span className="hidden lg:inline">पूर्व तट रेलवे • East Coast Railway</span>
         </div>
-        <div className="flex items-center gap-3">
-          {/* Live digital clock */}
-          <span className="font-mono text-white/90 bg-black/20 px-2 py-0.5 rounded border border-white/10">{timeStr}</span>
+        <div className="flex items-center gap-2 md:gap-3">
+          {/* Live Digital Clock */}
+          <span className="font-mono text-[9px] md:text-[10px] text-white/90 bg-black/25 px-1.5 py-0.5 rounded border border-white/5">{timeStr}</span>
           
           {/* Font Resizer */}
-          <div className="flex items-center bg-black/20 rounded overflow-hidden border border-white/10">
+          <div className="hidden md:flex items-center bg-black/20 rounded overflow-hidden border border-white/5">
             <button onClick={() => changeFont('dec')} className="px-2 py-0.5 hover:bg-white/10 transition-colors" title="Decrease Text Size">A-</button>
-            <button onClick={() => changeFont('reset')} className="px-2 py-0.5 hover:bg-white/10 border-x border-white/10 transition-colors" title="Normal Text Size">A</button>
+            <button onClick={() => changeFont('reset')} className="px-2 py-0.5 hover:bg-white/10 border-x border-white/5 transition-colors" title="Normal Text Size">A</button>
             <button onClick={() => changeFont('inc')} className="px-2 py-0.5 hover:bg-white/10 transition-colors" title="Increase Text Size">A+</button>
           </div>
 
           {/* Bilingual Selector */}
           <button 
             onClick={toggleLang} 
-            className="px-2 py-0.5 bg-black/20 rounded border border-white/10 hover:bg-white/10 transition-colors"
+            className="hidden md:block px-2 py-0.5 bg-black/20 rounded border border-white/5 hover:bg-white/10 transition-colors"
           >
             {lang === 'EN' ? 'हिन्दी' : 'English'}
           </button>
         </div>
       </div>
 
-      {/* 2. Main Navigation Bar */}
+      {/* 2. Main Navigation Control Bar */}
       <div className="flex-1 flex items-center justify-between px-5">
-        {/* Left: hamburger + logo/bilingual text */}
-        <div className="flex items-center gap-3 flex-1">
+        
+        {/* Left: Mobile hamburger + ECoR Brand & Breadcrumbs */}
+        <div className="flex items-center gap-4 flex-1">
           <button
             id="sidebar-menu-btn"
             onClick={onMenuClick}
-            className="btn-icon md:hidden"
-            style={{ color: 'rgb(var(--text-secondary))' }}
+            className="btn-icon md:hidden text-slate-500 hover:text-slate-900"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
 
-          {/* Bilingual Title branding */}
-          <div className="flex flex-col text-left">
-            <h1 className="text-xs md:text-sm font-black tracking-tight" style={{ color: 'var(--railway-crimson)' }}>
-              {t("Asset Management System")}
-            </h1>
-            <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 leading-none">
-              {t("Indian Railways Portal")}
-            </p>
+          {/* Breadcrumbs */}
+          <div className="hidden lg:flex items-center gap-1.5 text-[9px] font-bold text-slate-400 uppercase tracking-widest select-none">
+            <span>ECoR-AMP HUB</span>
+            {pathnames.length === 0 ? (
+              <>
+                <span className="text-slate-300">&rsaquo;</span>
+                <span className="text-red-700 dark:text-red-400">DASHBOARD</span>
+              </>
+            ) : (
+              pathnames.map((name, index) => {
+                const isLast = index === pathnames.length - 1;
+                return (
+                  <React.Fragment key={name}>
+                    <span className="text-slate-300">&rsaquo;</span>
+                    <span className={isLast ? 'text-red-700 dark:text-red-400' : ''}>
+                      {name.replace('-', ' ')}
+                    </span>
+                  </React.Fragment>
+                );
+              })
+            )}
+          </div>
+
+          {/* Division Selector */}
+          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1 rounded">
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider select-none">DIVISION:</span>
+            <select
+              value={currentDivision}
+              onChange={(e) => setCurrentDivision(e.target.value)}
+              className="bg-transparent text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer uppercase tracking-wide"
+            >
+              <option value="East Coast Railway (HQ-BBS)">Zonal HQ (BBS)</option>
+              <option value="Khurda Road Division (KUR)">Khurda Road (KUR)</option>
+              <option value="Sambalpur Division (SBP)">Sambalpur (SBP)</option>
+              <option value="Waltair Division (WAT)">Waltair (WAT)</option>
+            </select>
           </div>
         </div>
 
-      {/* Right: theme + notifications + user */}
-      <div className="flex items-center gap-2">
+        {/* Global Search Bar */}
+        <div className="hidden md:flex items-center relative max-w-xs flex-1 mx-4">
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            placeholder={t("Search assets, divisions...")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-700 dark:text-slate-300 placeholder-slate-500 focus:border-amber-600 focus:outline-none transition-all"
+          />
+        </div>
 
-        {/* Theme toggle */}
-        <button
-          id="theme-toggle"
-          onClick={toggleTheme}
-          className="btn-icon w-9 h-9 rounded-lg"
-          title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          style={{ color: 'rgb(var(--text-secondary))', background: 'rgb(var(--bg-elevated))' }}
-        >
-          {isDark ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        {/* Header Actions */}
+        <div className="flex items-center gap-2">
 
-        {/* Notifications */}
-        <button
-          id="notifications-btn"
-          className="btn-icon w-9 h-9 rounded-lg relative"
-          style={{ color: 'rgb(var(--text-secondary))', background: 'rgb(var(--bg-elevated))' }}
-          title="Notifications"
-          onClick={() => navigate('/notifications')}
-        >
-          <Bell size={16} />
-          {unreadCount > 0 && (
-            <span
-              className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-white flex items-center justify-center font-bold"
-              style={{ background: '#dc2626', fontSize: '9px' }}
-            >
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
-          )}
-        </button>
-
-        {/* Divider */}
-        <div className="w-px h-8 mx-1" style={{ background: 'rgb(var(--border-color))' }} />
-
-        {/* User dropdown */}
-        <div className="relative" ref={userMenuRef}>
+          {/* Mobile Search Button */}
           <button
-            id="user-menu-btn"
-            onClick={() => setShowUserMenu(v => !v)}
-            className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl transition-all duration-150 hover:bg-elevated"
-            style={{ background: showUserMenu ? 'rgb(var(--bg-elevated))' : 'transparent' }}
+            id="mobile-search-btn"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
+            className="btn-icon w-8 h-8 rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500 hover:text-red-750 md:hidden"
+            title="Search Portal"
           >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-              style={{ background: 'var(--ams-blue-mid)' }}
-            >
-              {initials(`${user?.firstName || ''} ${user?.lastName || ''}`)}
-            </div>
-            <div className="hidden md:block text-left">
-              <div className="text-xs font-semibold leading-tight" style={{ color: 'rgb(var(--text-primary))' }}>
-                {user?.firstName} {user?.lastName}
-              </div>
-              <div className="text-xs leading-tight" style={{ color: 'rgb(var(--text-muted))' }}>
-                {user?.roles?.[0]?.replace('ROLE_', '')?.replace('_', ' ') || 'User'}
-              </div>
-            </div>
-            <ChevronDown size={14} style={{ color: 'rgb(var(--text-muted))' }} className={`transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+            <Search size={13} />
           </button>
 
-          {/* Dropdown */}
-          {showUserMenu && (
-            <div
-              className="absolute right-0 top-full mt-2 w-48 rounded-xl border shadow-lg overflow-hidden animate-scale-in z-50"
-              style={{
-                background: 'rgb(var(--bg-surface))',
-                borderColor: 'rgb(var(--border-color))',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
-              }}
+          {/* Theme Switch */}
+          <button
+            id="theme-toggle"
+            onClick={toggleTheme}
+            className="btn-icon w-8 h-8 rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500 hover:text-red-700"
+            title={isDark ? 'Day Theme' : 'Night Theme'}
+          >
+            {isDark ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
+
+          {/* Notifications bell */}
+          <button
+            id="notifications-btn"
+            className="btn-icon w-8 h-8 rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 relative text-slate-500 hover:text-red-700"
+            title="Notifications & Alerts"
+            onClick={() => navigate('/notifications')}
+          >
+            <Bell size={13} />
+            {unreadCount > 0 && (
+              <span
+                className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full text-white flex items-center justify-center font-bold border border-slate-50 dark:border-slate-900"
+                style={{ background: 'var(--railway-crimson)', fontSize: '8px' }}
+              >
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-slate-200 dark:bg-slate-800" />
+
+          {/* User drop menu */}
+          <div className="relative" ref={userMenuRef}>
+            <button
+              id="user-menu-btn"
+              onClick={() => setShowUserMenu(v => !v)}
+              className="flex items-center gap-2 p-1 rounded hover:bg-slate-50 dark:hover:bg-slate-900"
             >
-              <div className="px-4 py-3 border-b" style={{ borderColor: 'rgb(var(--border-color))' }}>
-                <p className="text-xs font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>
-                  {user?.firstName} {user?.lastName}
-                </p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--text-muted))' }}>
-                  {user?.email}
-                </p>
+              <div
+                className="w-7 h-7 rounded text-[10px] font-bold text-white flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--railway-crimson)' }}
+              >
+                {initials(`${user?.firstName || ''} ${user?.lastName || ''}`)}
               </div>
-              <button
-                onClick={() => { navigate('/settings'); setShowUserMenu(false) }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-elevated text-left"
-                style={{ color: 'rgb(var(--text-secondary))' }}
+              <ChevronDown size={12} className="text-slate-500 transition-transform" />
+            </button>
+
+            {/* Dropdown Options */}
+            {showUserMenu && (
+              <div
+                className="absolute right-0 top-full mt-2 w-48 rounded border shadow-md overflow-hidden bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               >
-                <Settings size={14} />
-                {t("Settings")}
-              </button>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 text-left"
-                style={{ color: '#dc2626' }}
-              >
-                <LogOut size={14} />
-                {t("Sign Out")}
-              </button>
-            </div>
-          )}
+                <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                  <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                  <p className="text-[9px] mt-1 text-slate-400 font-mono truncate leading-none">
+                    {user?.email}
+                  </p>
+                </div>
+                <button
+                  onClick={() => { navigate('/settings'); setShowUserMenu(false) }}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 text-left transition-colors"
+                >
+                  <Settings size={12} className="text-slate-400" />
+                  {t("Settings")}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 text-left transition-colors border-t border-slate-100 dark:border-slate-800"
+                >
+                  <LogOut size={12} />
+                  {t("Logout")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       </div>
     </header>
   )

@@ -38,7 +38,7 @@ function EmployeeModal({ emp, onClose, onSave }) {
             <X size={16} style={{ color: 'rgb(var(--text-muted))' }} />
           </button>
         </div>
-        <div className="p-6 grid grid-cols-2 gap-4">
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {fields.map(f => (
             <div key={f.key} className={f.col === 2 ? 'col-span-2' : ''}>
               <label className="form-label">{f.label}</label>
@@ -132,7 +132,7 @@ export default function EmployeesPage() {
           </nav>
         </div>
         {isAdmin && isAdmin() && (
-          <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary btn-sm">
+          <button onClick={() => { setEditing(null); setShowModal(true) }} className="btn-primary btn-sm flex items-center gap-1.5">
             <Plus size={14} /> Add Employee
           </button>
         )}
@@ -184,7 +184,7 @@ export default function EmployeesPage() {
           </div>
         ) : (
           <>
-            <div className="table-wrapper">
+            <div className="hidden md:block table-wrapper">
               <table className="table">
                 <thead>
                   <tr>
@@ -276,6 +276,72 @@ export default function EmployeesPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile View Card List */}
+            <div className="block md:hidden divide-y divide-slate-100 dark:divide-slate-800/80">
+              {employees.length === 0 ? (
+                <div className="text-center py-12 px-4 flex flex-col items-center gap-2">
+                  <Search size={20} style={{ color: 'rgb(var(--text-muted))' }} />
+                  <p className="text-sm" style={{ color: 'rgb(var(--text-muted))' }}>
+                    {search ? 'No employees match your search' : 'No employees found'}
+                  </p>
+                </div>
+              ) : (
+                employees.map(emp => (
+                  <div key={emp.id} className="p-4 space-y-3 text-left">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                           style={{ background: 'var(--ams-blue-mid)' }}>
+                        {initials(emp)}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold" style={{ color: 'rgb(var(--text-primary))' }}>
+                          {emp.firstName} {emp.lastName}
+                        </h4>
+                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>
+                          {emp.employeeCode || `EMP-${emp.id}`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-slate-500">
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Department</span>
+                        <span className="text-slate-700 dark:text-slate-200">{emp.departmentName || emp.department || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Designation</span>
+                        <span className="text-slate-700 dark:text-slate-200">{emp.designation || '—'}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Email Address</span>
+                        <a href={`mailto:${emp.email}`} className="font-mono text-blue-600 dark:text-blue-400 hover:underline">{emp.email}</a>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="block text-[9px] uppercase tracking-wider text-slate-400">Phone Number</span>
+                        <span className="text-slate-700 dark:text-slate-200">{emp.phone || '—'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100/60 dark:border-slate-800/40">
+                      <button className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1">
+                        <Eye size={12} /> View
+                      </button>
+                      {isAdmin && isAdmin() && (
+                        <>
+                          <button onClick={() => { setEditing(emp); setShowModal(true) }} className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1">
+                            <Edit size={12} /> Edit
+                          </button>
+                          <button onClick={() => handleDelete(emp.id, `${emp.firstName} ${emp.lastName}`)} className="btn-secondary btn-sm py-1.5 px-3 flex items-center gap-1 text-red-700 dark:text-red-400">
+                            <Trash2 size={12} /> Delete
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
             {/* Pagination */}

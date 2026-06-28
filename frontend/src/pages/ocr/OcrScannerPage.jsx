@@ -199,13 +199,15 @@ export default function OcrScannerPage() {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { step: '1', icon: '📤', label: 'Upload', desc: 'Upload invoice PDF or image' },
-            { step: '2', icon: '🔍', label: 'Scan', desc: 'Tesseract OCR extracts text' },
-            { step: '3', icon: '🧠', label: 'Parse', desc: 'AI extracts key fields' },
-            { step: '4', icon: '✅', label: 'Create', desc: 'Create asset with extracted data' },
+            { step: '1', label: 'Upload', desc: 'Upload invoice PDF or image' },
+            { step: '2', label: 'Scan', desc: 'Tesseract OCR extracts text' },
+            { step: '3', label: 'Parse', desc: 'AI extracts key fields' },
+            { step: '4', label: 'Create', desc: 'Create asset with extracted data' },
           ].map(s => (
-            <div key={s.step} className="text-center p-3 rounded-xl" style={{ background: 'rgb(var(--bg-elevated))' }}>
-              <div className="text-2xl mb-2">{s.icon}</div>
+            <div key={s.step} className="text-center p-4 rounded-xl flex flex-col items-center justify-center" style={{ background: 'rgb(var(--bg-elevated))' }}>
+              <div className="w-8 h-8 rounded-full bg-red-800/10 text-red-500 flex items-center justify-center mb-2.5 text-xs font-bold border border-red-800/20">
+                {s.step}
+              </div>
               <div className="text-sm font-semibold" style={{ color: 'rgb(var(--text-primary))' }}>{s.label}</div>
               <div className="text-xs mt-1" style={{ color: 'rgb(var(--text-muted))' }}>{s.desc}</div>
             </div>
