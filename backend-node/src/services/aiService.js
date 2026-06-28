@@ -36,7 +36,7 @@ async function chat(userMessage, currentUserId) {
 
   const hasValidPrefix = providerType === 'openai'
     ? (apiKey && apiKey.startsWith('sk-'))
-    : (apiKey && apiKey.startsWith('AIzaSy'));
+    : (apiKey && (apiKey.startsWith('AIza') || apiKey.startsWith('AQ')));
 
   if (isPlaceholder || !hasValidPrefix) {
     // Fallback: rule-based response
