@@ -120,19 +120,25 @@ async function parseOcrWithAi(text) {
 
   try {
     const provider = require('./ai/index').getProvider();
-    const systemPrompt = `You are an AI data extractor specializing in parsing raw OCR text from purchase invoices.
-Extract the following fields from the invoice and format them exactly as a JSON object matching this schema:
+    const systemPrompt = `You are an extremely strict AI data extractor specializing in parsing raw OCR text from purchase invoices.
+Extract the fields below from the provided raw OCR text. Format the output as a clean, raw JSON object ONLY, with no markdown styling (do not use \`\`\`json block wrappers) or explanations.
+
+CRITICAL INSTRUCTIONS:
+1. ABSOLUTELY NO HALLUCINATIONS: If a field is not explicitly mentioned or clearly identifiable in the OCR text, you MUST return null for that field. Never guess, assume, interpolate, or generate fake values (like fake serial numbers, dates, or names).
+2. NO INVENTING DETAILS: For example, do not generate a serial number or invoice number unless it is explicitly written next to identifiers like "S/N", "Serial", "Inv No", etc.
+3. ACCURACY: The vendorName must be the actual name of the selling company. The totalAmount must be the final grand total of the invoice.
+
+JSON Schema:
 {
-  "vendorName": "Name of the supplier/company or null if not found",
-  "invoiceNumber": "Invoice number or null if not found",
-  "invoiceDate": "Invoice date in YYYY-MM-DD format or null if not found",
-  "purchaseDate": "Purchase/Order date in YYYY-MM-DD format or null if not found",
-  "totalAmount": 1234.56 (number representing the grand total/final amount, or null),
-  "warrantyPeriod": "Warranty period mentioned (e.g. '1 Year', '24 Months') or null",
-  "assetName": "Name of the main product/asset purchased or null",
-  "serialNumber": "Serial number of the product or null"
-}
-Ensure that dates are strictly in YYYY-MM-DD format. Ensure totalAmount is a float number. Ensure you only return the JSON, nothing else.`;
+  "vendorName": "Exact supplier/vendor company name, or null if not found",
+  "invoiceNumber": "Exact invoice number/id, or null if not found",
+  "invoiceDate": "Invoice date strictly formatted as YYYY-MM-DD, or null if not found",
+  "purchaseDate": "Purchase/Order date strictly formatted as YYYY-MM-DD, or null if not found",
+  "totalAmount": 1234.56 (number representing final grand total only, or null if not found),
+  "warrantyPeriod": "Warranty duration (e.g. '1 Year', '24 Months'), or null if not found",
+  "assetName": "Exact model/name of the main purchased product, or null if not found",
+  "serialNumber": "Exact serial number/id of the product, or null if not found"
+}`;
 
     const response = await provider.generateResponse(systemPrompt, `Raw OCR Text:\n${text}`);
     
