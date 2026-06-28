@@ -237,15 +237,17 @@ async function runSeeding() {
   const assets = await Asset.bulkCreate(assetsData);
   logger.info(`✅ Seeded ${assets.length} Assets`);
 
-  // Generate QR code images on-the-fly for all seeded assets
-  logger.info('Generating physical QR code images on disk...');
-  for (const asset of assets) {
-    try {
-      await generateQrCode(asset.assetUniqueId || asset.assetTag);
-    } catch (qrErr) {
-      logger.warn(`Could not generate QR code file for ${asset.assetTag}: ${qrErr.message}`);
+  // Generate QR code images on-the-fly for all seeded assets in the background to prevent HTTP timeout
+  setImmediate(async () => {
+    logger.info('Generating physical QR code images on disk in background...');
+    for (const asset of assets) {
+      try {
+        await generateQrCode(asset.assetUniqueId || asset.assetTag);
+      } catch (qrErr) {
+        logger.warn(`Could not generate QR code file for ${asset.assetTag}: ${qrErr.message}`);
+      }
     }
-  }
+  });
 
   // 6. Seed 50 Asset Assignments (Allocations)
   const allocationsData = [];
