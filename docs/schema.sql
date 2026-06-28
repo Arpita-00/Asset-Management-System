@@ -10,9 +10,9 @@
 -- =============================================================================
 CREATE TABLE roles (
     id         BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name       VARCHAR(50) NOT NULL UNIQUE COMMENT 'ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_EMPLOYEE',
+    name       VARCHAR(50) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB COMMENT='User role definitions';
+) ENGINE=InnoDB;
 
 INSERT INTO roles (name) VALUES ('ROLE_SUPER_ADMIN'), ('ROLE_ADMIN'), ('ROLE_EMPLOYEE');
 
@@ -28,7 +28,7 @@ CREATE TABLE departments (
     is_active   BOOLEAN DEFAULT TRUE,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB COMMENT='Organizational departments';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- USERS TABLE
@@ -44,16 +44,16 @@ CREATE TABLE users (
     department_id        BIGINT,
     is_active            BOOLEAN DEFAULT TRUE,
     is_email_verified    BOOLEAN DEFAULT FALSE,
-    last_login           TIMESTAMP,
+    last_login           TIMESTAMP NULL DEFAULT NULL,
     password_reset_token VARCHAR(255),
-    reset_token_expiry   TIMESTAMP,
+    reset_token_expiry   TIMESTAMP NULL DEFAULT NULL,
     refresh_token        TEXT,
     created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
     INDEX idx_email (email),
     INDEX idx_department (department_id)
-) ENGINE=InnoDB COMMENT='System users';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- USER_ROLES TABLE (Many-to-Many)
@@ -64,7 +64,7 @@ CREATE TABLE user_roles (
     PRIMARY KEY (user_id, role_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='User to role mapping';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- EMPLOYEES TABLE
@@ -88,7 +88,7 @@ CREATE TABLE employees (
     FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
     INDEX idx_emp_code (employee_code),
     INDEX idx_emp_dept (department_id)
-) ENGINE=InnoDB COMMENT='Employee records';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- ASSET CATEGORIES TABLE
@@ -99,10 +99,10 @@ CREATE TABLE asset_categories (
     code        VARCHAR(20)  NOT NULL UNIQUE,
     description TEXT,
     icon        VARCHAR(100),
-    useful_life INT COMMENT 'Expected useful life in years for depreciation',
+    useful_life INT,
     is_active   BOOLEAN DEFAULT TRUE,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB COMMENT='Asset category definitions';
+) ENGINE=InnoDB;
 
 INSERT INTO asset_categories (name, code, useful_life) VALUES
     ('Laptop', 'LAP', 3),
@@ -142,7 +142,7 @@ CREATE TABLE vendors (
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_vendor_code (vendor_code)
-) ENGINE=InnoDB COMMENT='Vendor/Supplier information';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- VENDOR RATINGS TABLE
@@ -156,14 +156,14 @@ CREATE TABLE vendor_ratings (
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE,
     FOREIGN KEY (rated_by) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='Vendor performance ratings';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- ASSETS TABLE (Core)
 -- =============================================================================
 CREATE TABLE assets (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    asset_tag         VARCHAR(100) NOT NULL UNIQUE COMMENT 'Auto-generated: AST-YYYY-XXXXX',
+    asset_tag         VARCHAR(100) NOT NULL UNIQUE,
     name              VARCHAR(200) NOT NULL,
     category_id       BIGINT NOT NULL,
     brand             VARCHAR(100),
@@ -174,7 +174,7 @@ CREATE TABLE assets (
     current_value     DECIMAL(12,2),
     vendor_id         BIGINT,
     department_id     BIGINT,
-    assigned_to       BIGINT COMMENT 'Employee ID',
+    assigned_to       BIGINT,
     current_location  VARCHAR(255),
     warranty_expiry   DATE,
     status            ENUM('AVAILABLE','ASSIGNED','UNDER_REPAIR','DISPOSED','LOST','RETIRED')
@@ -182,9 +182,9 @@ CREATE TABLE assets (
     qr_code_url       VARCHAR(500),
     image_url         VARCHAR(500),
     description       TEXT,
-    specifications    JSON COMMENT 'Flexible specs: RAM, CPU, storage etc.',
+    specifications    JSON,
     is_active         BOOLEAN DEFAULT TRUE,
-    disposed_at       TIMESTAMP,
+    disposed_at       TIMESTAMP NULL DEFAULT NULL,
     disposal_reason   TEXT,
     created_by        BIGINT,
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -200,7 +200,7 @@ CREATE TABLE assets (
     INDEX idx_asset_category (category_id),
     INDEX idx_asset_serial (serial_number),
     FULLTEXT idx_ft_asset (name, brand, model, serial_number)
-) ENGINE=InnoDB COMMENT='Core asset records';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- ASSET ALLOCATIONS TABLE
@@ -212,7 +212,7 @@ CREATE TABLE asset_allocations (
     allocated_by    BIGINT NOT NULL,
     allocated_date  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expected_return DATE,
-    actual_return   TIMESTAMP,
+    actual_return   TIMESTAMP NULL DEFAULT NULL,
     returned_to     BIGINT,
     status          ENUM('ACTIVE','RETURNED','TRANSFERRED') NOT NULL DEFAULT 'ACTIVE',
     purpose         VARCHAR(500),
@@ -226,7 +226,7 @@ CREATE TABLE asset_allocations (
     INDEX idx_alloc_asset (asset_id),
     INDEX idx_alloc_emp (employee_id),
     INDEX idx_alloc_status (status)
-) ENGINE=InnoDB COMMENT='Asset allocation records';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- ASSET MOVEMENTS TABLE
@@ -249,17 +249,17 @@ CREATE TABLE asset_movements (
     FOREIGN KEY (moved_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_movement_asset (asset_id),
     INDEX idx_movement_date (movement_date)
-) ENGINE=InnoDB COMMENT='Asset movement timeline';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- MAINTENANCE REQUESTS TABLE
 -- =============================================================================
 CREATE TABLE maintenance_requests (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
-    request_number    VARCHAR(50) NOT NULL UNIQUE COMMENT 'MNT-YYYY-XXXXX',
+    request_number    VARCHAR(50) NOT NULL UNIQUE,
     asset_id          BIGINT NOT NULL,
     requested_by      BIGINT NOT NULL,
-    assigned_to       BIGINT COMMENT 'Technician user ID',
+    assigned_to       BIGINT,
     issue_type        ENUM('HARDWARE','SOFTWARE','NETWORK','PHYSICAL','PREVENTIVE','OTHER') NOT NULL,
     priority          ENUM('LOW','MEDIUM','HIGH','CRITICAL') NOT NULL DEFAULT 'MEDIUM',
     status            ENUM('OPEN','IN_PROGRESS','COMPLETED','CANCELLED','ON_HOLD') NOT NULL DEFAULT 'OPEN',
@@ -267,8 +267,8 @@ CREATE TABLE maintenance_requests (
     description       TEXT NOT NULL,
     estimated_cost    DECIMAL(10,2),
     actual_cost       DECIMAL(10,2),
-    started_at        TIMESTAMP,
-    completed_at      TIMESTAMP,
+    started_at        TIMESTAMP NULL DEFAULT NULL,
+    completed_at      TIMESTAMP NULL DEFAULT NULL,
     downtime_hours    DECIMAL(8,2) DEFAULT 0,
     resolution_notes  TEXT,
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -279,7 +279,7 @@ CREATE TABLE maintenance_requests (
     INDEX idx_maint_asset (asset_id),
     INDEX idx_maint_status (status),
     INDEX idx_maint_number (request_number)
-) ENGINE=InnoDB COMMENT='Maintenance requests';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- MAINTENANCE HISTORY TABLE
@@ -298,7 +298,7 @@ CREATE TABLE maintenance_history (
     FOREIGN KEY (performed_by) REFERENCES users(id),
     INDEX idx_mhist_asset (asset_id),
     INDEX idx_mhist_request (request_id)
-) ENGINE=InnoDB COMMENT='Maintenance action history';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- WARRANTY TRACKING TABLE
@@ -319,14 +319,14 @@ CREATE TABLE warranty_tracking (
     reminder_30_sent     BOOLEAN DEFAULT FALSE,
     reminder_15_sent     BOOLEAN DEFAULT FALSE,
     reminder_7_sent      BOOLEAN DEFAULT FALSE,
-    is_expired           BOOLEAN GENERATED ALWAYS AS (warranty_end_date < CURDATE()) STORED,
+    is_expired           BOOLEAN DEFAULT FALSE,
     created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (asset_id)  REFERENCES assets(id) ON DELETE CASCADE,
     FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
     INDEX idx_warranty_end (warranty_end_date),
     INDEX idx_warranty_asset (asset_id)
-) ENGINE=InnoDB COMMENT='Warranty information and tracking';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- ASSET DOCUMENTS TABLE
@@ -346,7 +346,7 @@ CREATE TABLE asset_documents (
     FOREIGN KEY (asset_id)    REFERENCES assets(id) ON DELETE CASCADE,
     FOREIGN KEY (uploaded_by) REFERENCES users(id),
     INDEX idx_doc_asset (asset_id)
-) ENGINE=InnoDB COMMENT='Asset related documents';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- DEPRECIATION RECORDS TABLE
@@ -354,7 +354,7 @@ CREATE TABLE asset_documents (
 CREATE TABLE depreciation_records (
     id                BIGINT AUTO_INCREMENT PRIMARY KEY,
     asset_id          BIGINT NOT NULL,
-    financial_year    VARCHAR(10) NOT NULL COMMENT 'e.g., 2024-25',
+    financial_year    VARCHAR(10) NOT NULL,
     opening_value     DECIMAL(12,2) NOT NULL,
     depreciation_rate DECIMAL(5,2) NOT NULL,
     depreciation_amt  DECIMAL(12,2) NOT NULL,
@@ -367,7 +367,7 @@ CREATE TABLE depreciation_records (
     UNIQUE KEY uk_asset_fy (asset_id, financial_year),
     INDEX idx_depr_asset (asset_id),
     INDEX idx_depr_fy (financial_year)
-) ENGINE=InnoDB COMMENT='Asset depreciation records';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- ASSET HEALTH SCORES TABLE
@@ -375,13 +375,13 @@ CREATE TABLE depreciation_records (
 CREATE TABLE asset_health_scores (
     id                  BIGINT AUTO_INCREMENT PRIMARY KEY,
     asset_id            BIGINT NOT NULL UNIQUE,
-    health_score        DECIMAL(5,2) NOT NULL COMMENT '0-100',
+    health_score        DECIMAL(5,2) NOT NULL,
     health_level        ENUM('EXCELLENT','GOOD','AVERAGE','POOR','CRITICAL') NOT NULL,
-    age_score           DECIMAL(5,2) COMMENT 'Score component: age factor',
-    maintenance_score   DECIMAL(5,2) COMMENT 'Score component: maintenance frequency',
-    repair_cost_score   DECIMAL(5,2) COMMENT 'Score component: repair costs',
-    downtime_score      DECIMAL(5,2) COMMENT 'Score component: downtime',
-    warranty_score      DECIMAL(5,2) COMMENT 'Score component: warranty status',
+    age_score           DECIMAL(5,2),
+    maintenance_score   DECIMAL(5,2),
+    repair_cost_score   DECIMAL(5,2),
+    downtime_score      DECIMAL(5,2),
+    warranty_score      DECIMAL(5,2),
     risk_level          ENUM('LOW','MEDIUM','HIGH') DEFAULT 'LOW',
     risk_score          DECIMAL(5,2),
     next_maintenance_date DATE,
@@ -390,7 +390,7 @@ CREATE TABLE asset_health_scores (
     FOREIGN KEY (asset_id) REFERENCES assets(id) ON DELETE CASCADE,
     INDEX idx_health_score (health_score),
     INDEX idx_health_level (health_level)
-) ENGINE=InnoDB COMMENT='Asset health score tracking';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- NOTIFICATIONS TABLE
@@ -403,17 +403,17 @@ CREATE TABLE notifications (
                          'ASSET_DISPOSED','SYSTEM','BUDGET_ALERT','RISK_ALERT') NOT NULL,
     title           VARCHAR(255) NOT NULL,
     message         TEXT NOT NULL,
-    reference_type  VARCHAR(50)  COMMENT 'ASSET, MAINTENANCE, WARRANTY etc.',
+    reference_type  VARCHAR(50),
     reference_id    BIGINT,
     is_read         BOOLEAN DEFAULT FALSE,
     is_email_sent   BOOLEAN DEFAULT FALSE,
-    email_sent_at   TIMESTAMP,
+    email_sent_at   TIMESTAMP NULL DEFAULT NULL,
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_notif_user (user_id),
     INDEX idx_notif_read (is_read),
     INDEX idx_notif_created (created_at)
-) ENGINE=InnoDB COMMENT='In-app and email notifications';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- AUDIT LOGS TABLE (Immutable)
@@ -422,11 +422,11 @@ CREATE TABLE audit_logs (
     id            BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id       BIGINT,
     user_email    VARCHAR(255),
-    action        VARCHAR(100) NOT NULL COMMENT 'CREATE, UPDATE, DELETE, LOGIN, etc.',
-    entity_type   VARCHAR(50)  NOT NULL COMMENT 'ASSET, EMPLOYEE, USER, etc.',
+    action        VARCHAR(100) NOT NULL,
+    entity_type   VARCHAR(50)  NOT NULL,
     entity_id     BIGINT,
-    old_values    JSON COMMENT 'Previous state as JSON',
-    new_values    JSON COMMENT 'New state as JSON',
+    old_values    JSON,
+    new_values    JSON,
     description   TEXT,
     ip_address    VARCHAR(45),
     user_agent    VARCHAR(500),
@@ -436,7 +436,7 @@ CREATE TABLE audit_logs (
     INDEX idx_audit_entity (entity_type, entity_id),
     INDEX idx_audit_action (action),
     INDEX idx_audit_created (created_at)
-) ENGINE=InnoDB COMMENT='Immutable audit log - no updates or deletes';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- BUDGET FORECASTS TABLE
@@ -457,7 +457,7 @@ CREATE TABLE budget_forecasts (
     FOREIGN KEY (category_id)   REFERENCES asset_categories(id) ON DELETE SET NULL,
     FOREIGN KEY (generated_by)  REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_budget_fy (financial_year)
-) ENGINE=InnoDB COMMENT='Budget forecasting data';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- AI CHAT HISTORY TABLE
@@ -472,7 +472,7 @@ CREATE TABLE ai_chat_history (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_ai_session (session_id),
     INDEX idx_ai_user (user_id)
-) ENGINE=InnoDB COMMENT='AI assistant conversation history';
+) ENGINE=InnoDB;
 
 -- =============================================================================
 -- Default Super Admin User (Password: Admin@123 - bcrypt)
