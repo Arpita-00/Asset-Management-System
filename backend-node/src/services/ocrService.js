@@ -47,6 +47,16 @@ async function extractInvoiceData(file) {
   }
 
   logger.debug(`OCR raw text extracted (${rawText.length} chars)`);
+
+  // Try AI parsing first if provider is configured
+  let parsed = await parseOcrWithAi(rawText);
+  if (parsed) {
+    parsed.rawText = rawText;
+    parsed.extractionConfidence = calculateConfidence(parsed);
+    return parsed;
+  }
+
+  // Otherwise, use tightened regex fallback
   return parseInvoiceData(rawText);
 }
 
@@ -71,15 +81,10 @@ async function extractFromImage(buffer, mimetype) {
 }
 
 async function extractFromPdf(buffer) {
-  // Tesseract.js can also accept a buffer directly for images
-  // For PDFs, we attempt to use tesseract on the raw buffer as-is (basic support)
-  // For proper PDF support, a PDF-to-image conversion step would be needed.
-  // We fallback to treating the buffer as a raw document.
   try {
     const worker = await createWorker('eng', 1, {
       logger: m => logger.debug(`Tesseract: ${m.status}`),
     });
-    // tesseract.js can handle PDFs in some versions
     const { data: { text } } = await worker.recognize(buffer);
     await worker.terminate();
     return text;
@@ -91,12 +96,72 @@ async function extractFromPdf(buffer) {
 
 // ─── Data Parsing ─────────────────────────────────────────────────────────────
 
+async function parseOcrWithAi(text) {
+  if (!text || text.trim() === '') return null;
+
+  const config = require('../config/env');
+  const apiKey = config.gemini.apiKey;
+  const providerType = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+  
+  const isPlaceholder = !apiKey 
+    || apiKey === 'your-gemini-api-key' 
+    || apiKey === 'your_gemini_api_key_here'
+    || apiKey === 'your-openai-api-key'
+    || apiKey === '';
+
+  const hasValidPrefix = providerType === 'openai'
+    ? (apiKey && apiKey.startsWith('sk-'))
+    : (apiKey && (apiKey.startsWith('AIza') || apiKey.startsWith('AQ')));
+
+  if (isPlaceholder || !hasValidPrefix) {
+    logger.info('AI provider not configured for OCR parsing. Using regex fallback.');
+    return null;
+  }
+
+  try {
+    const provider = require('./ai/index').getProvider();
+    const systemPrompt = `You are an AI data extractor specializing in parsing raw OCR text from purchase invoices.
+Extract the following fields from the invoice and format them exactly as a JSON object matching this schema:
+{
+  "vendorName": "Name of the supplier/company or null if not found",
+  "invoiceNumber": "Invoice number or null if not found",
+  "invoiceDate": "Invoice date in YYYY-MM-DD format or null if not found",
+  "purchaseDate": "Purchase/Order date in YYYY-MM-DD format or null if not found",
+  "totalAmount": 1234.56 (number representing the grand total/final amount, or null),
+  "warrantyPeriod": "Warranty period mentioned (e.g. '1 Year', '24 Months') or null",
+  "assetName": "Name of the main product/asset purchased or null",
+  "serialNumber": "Serial number of the product or null"
+}
+Ensure that dates are strictly in YYYY-MM-DD format. Ensure totalAmount is a float number. Ensure you only return the JSON, nothing else.`;
+
+    const response = await provider.generateResponse(systemPrompt, `Raw OCR Text:\n${text}`);
+    
+    // Parse response
+    const cleanJson = response.replace(/```json|```/g, '').trim();
+    const data = JSON.parse(cleanJson);
+    
+    return {
+      vendorName: data.vendorName || null,
+      invoiceNumber: data.invoiceNumber || null,
+      invoiceDate: data.invoiceDate || null,
+      purchaseDate: data.purchaseDate || null,
+      totalAmount: typeof data.totalAmount === 'number' ? data.totalAmount : null,
+      warrantyPeriod: data.warrantyPeriod || null,
+      assetName: data.assetName || null,
+      serialNumber: data.serialNumber || null,
+    };
+  } catch (err) {
+    logger.warn(`AI OCR parsing failed: ${err.message}. Falling back to regex parser.`);
+    return null;
+  }
+}
+
 function parseInvoiceData(text) {
   const vendorName = extractVendorName(text);
   const invoiceNumber = extractInvoiceNumber(text);
-  const invoiceDate = extractDate(text, /(?:invoice\s*date|date)[:\s]+([^\n]+)/i);
-  const purchaseDate = extractDate(text, /(?:purchase\s*date|order\s*date)[:\s]+([^\n]+)/i);
-  const totalAmount = extractAmount(text, /(?:total|amount|grand\s*total)[:\s]*[\$₹€£]?\s*([\d,]+\.?\d*)/i);
+  const invoiceDate = extractDate(text, 'invoice');
+  const purchaseDate = extractDate(text, 'purchase');
+  const totalAmount = extractAmount(text);
   const warrantyPeriod = extractWarrantyPeriod(text);
   const assetName = extractAssetName(text);
   const serialNumber = extractSerialNumber(text);
@@ -121,64 +186,196 @@ function parseInvoiceData(text) {
 // ─── Extractors ───────────────────────────────────────────────────────────────
 
 function extractVendorName(text) {
-  const m = text.match(/(?:vendor|supplier|from|sold\s*by|company)[:\s]+([A-Z][\w\s&.,]+?)(?:\n|$)/i);
-  if (m) return m[1].trim();
-  // Fallback: find first all-caps line
-  const lines = text.split('\n');
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const ignorePatterns = /^(tax\s+)?invoice$|^bill\s+to$|^ship\s+to$|^receipt$|^invoice\s+date$|^invoice\s+number$|^page\s+\d+/i;
+  
   for (const line of lines) {
-    if (/^[A-Z][A-Z\s&.,]+$/.test(line.trim()) && line.trim().length > 3) {
-      return line.trim();
+    if (ignorePatterns.test(line)) continue;
+    if (/(?:pvt|private|ltd|limited|inc|corp|corporation|co\.|company|solutions|technologies|systems|services|mobility)/i.test(line)) {
+      return line.replace(/^(from|sold\s*by|vendor|supplier|company)[:\s]*/i, '').trim();
+    }
+  }
+  
+  const m = text.match(/(?:vendor|supplier|sold\s*by|supplier\s*name|from)[:\s]+([A-Za-z0-9\s&.,\-]+)/i);
+  if (m) {
+    const candidate = m[1].trim().split('\n')[0].trim();
+    if (candidate.length > 2 && !ignorePatterns.test(candidate)) return candidate;
+  }
+  
+  for (const line of lines.slice(0, 5)) {
+    if (ignorePatterns.test(line)) continue;
+    if (/^[A-Za-z][A-Za-z\s&.,\-]+$/.test(line) && line.length > 3) {
+      return line;
     }
   }
   return null;
 }
 
 function extractInvoiceNumber(text) {
-  const m = text.match(/(?:invoice\s*(?:no|number|#|num))[.:\s]*([A-Z0-9\-/]+)/i);
-  return m ? m[1].trim() : null;
-}
-
-function extractDate(text, pattern) {
-  const m = text.match(pattern);
-  if (!m) return null;
-  const raw = m[1].trim();
-  // Try ISO date first
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-  // Try dd/MM/yyyy
-  const ddmm = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (ddmm) return `${ddmm[3]}-${ddmm[2]}-${ddmm[1]}`;
-  // Try MM/dd/yyyy
-  const mmdd = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (mmdd) {
-    const d = new Date(`${mmdd[3]}-${mmdd[1]}-${mmdd[2]}`);
-    if (!isNaN(d)) return `${mmdd[3]}-${mmdd[1]}-${mmdd[2]}`;
+  const patterns = [
+    /(?:invoice\s*no|invoice\s*number|invoice\s*#|inv\s*no|inv\s*#|bill\s*no|bill\s*number)[:.#\s]+([A-Za-z0-9\-\/]+)/i,
+    /(?:invoice|inv|bill)\s*[:#\s]+([A-Za-z0-9\-\/]+)/i,
+    /([A-Z0-9\-\/]+)\s+(?:date|dated)/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m && m[1] && m[1].trim().length > 2) {
+      const val = m[1].trim();
+      if (!/^(date|total|tax|invoice|bill|amount)$/i.test(val)) {
+        return val;
+      }
+    }
   }
-  // Try parsing naturally
-  const d = new Date(raw);
-  if (!isNaN(d)) return d.toISOString().split('T')[0];
   return null;
 }
 
-function extractAmount(text, pattern) {
-  const m = text.match(pattern);
-  if (!m) return null;
-  const num = parseFloat(m[1].replace(/,/g, ''));
-  return isNaN(num) ? null : num;
+function extractDate(text, type = 'invoice') {
+  const invoicePatterns = [
+    /(?:invoice\s*date|inv\s*date|date\s*of\s*issue|billing\s*date|dated)[:\s]+([^\n]+)/i,
+    /(?:date|dated)[:\s]+([^\n]+)/i
+  ];
+  const purchasePatterns = [
+    /(?:purchase\s*date|order\s*date|po\s*date|transaction\s*date)[:\s]+([^\n]+)/i
+  ];
+  
+  const patterns = type === 'invoice' ? invoicePatterns : purchasePatterns;
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) {
+      const parsed = parseDateString(m[1].trim());
+      if (parsed) return parsed;
+    }
+  }
+  
+  const genericPatterns = [
+    /\b(\d{4})[-/.](\d{2})[-/.](\d{2})\b/,
+    /\b(\d{2})[-/.](\d{2})[-/.](\d{4})\b/,
+    /\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{4})\b/i,
+    /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2}),?\s+(\d{4})\b/i
+  ];
+  
+  for (const gp of genericPatterns) {
+    const m = text.match(gp);
+    if (m) {
+      const parsed = parseDateString(m[0]);
+      if (parsed) return parsed;
+    }
+  }
+  
+  return null;
+}
+
+function parseDateString(raw) {
+  let clean = raw.split(/[,\n]/)[0].trim().replace(/[.:;]$/, '');
+  
+  if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) return clean;
+  
+  const slashMatch = clean.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+  if (slashMatch) {
+    const part1 = parseInt(slashMatch[1], 10);
+    const part2 = parseInt(slashMatch[2], 10);
+    const year = parseInt(slashMatch[3], 10);
+    
+    if (part1 > 12) {
+      return `${year}-${String(part2).padStart(2, '0')}-${String(part1).padStart(2, '0')}`;
+    }
+    const d = new Date(year, part1 - 1, part2);
+    if (!isNaN(d)) {
+      return `${year}-${String(part1).padStart(2, '0')}-${String(part2).padStart(2, '0')}`;
+    }
+  }
+  
+  const d = new Date(clean);
+  if (!isNaN(d)) {
+    return d.toISOString().split('T')[0];
+  }
+  return null;
+}
+
+function extractAmount(text) {
+  const lines = text.split('\n');
+  const totalKeywords = /(?:grand\s*total|total\s*due|total\s*amount|total|net\s*amount|total\s*payable|balance)/i;
+  
+  let candidates = [];
+  
+  for (const line of lines) {
+    if (totalKeywords.test(line)) {
+      const matches = line.match(/(?:[\$₹€£]|\brs\.?|inr)?\s*([\d,]+\.\d{2})\b/i) || line.match(/([\d,]+\.\d{2})\b/);
+      if (matches && matches[1]) {
+        const val = parseFloat(matches[1].replace(/,/g, ''));
+        if (!isNaN(val)) candidates.push(val);
+      }
+    }
+  }
+  
+  if (candidates.length > 0) {
+    return Math.max(...candidates);
+  }
+  
+  const m = text.match(/(?:grand\s*total|total\s*due|total\s*amount|total)[:\s]*[\$₹€£]?\s*([\d,]+\.?\d*)/i);
+  if (m) {
+    const num = parseFloat(m[1].replace(/,/g, ''));
+    if (!isNaN(num)) return num;
+  }
+  
+  return null;
 }
 
 function extractWarrantyPeriod(text) {
-  const m = text.match(/warranty[:\s]+(\d+\s*(?:year|month|day)s?)/i);
-  return m ? m[1].trim() : null;
+  const patterns = [
+    /(?:warranty|warranty\s*period)[:\s]+(\d+\s*(?:year|month|day|yr|mo)s?)/i,
+    /(\d+\s*(?:year|month|yr|mo)s?\s*warranty)/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return m[1].trim();
+  }
+  return null;
 }
 
 function extractAssetName(text) {
-  const m = text.match(/(?:product|item|description|asset)[:\s]+([A-Za-z][\w\s]+?)(?:\n|$)/i);
-  return m ? m[1].trim() : null;
+  const patterns = [
+    /(?:product|item|description|asset|equipment|model\s*name)[:\s]+([A-Za-z0-9][\w\s&.,+\-()]{3,80})/i,
+    /(?:desc|description)[:\s]+([A-Za-z0-9][\w\s&.,+\-()]{3,80})/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m && m[1]) {
+      const val = m[1].trim().split('\n')[0].trim();
+      if (val.length > 3) return val;
+    }
+  }
+  
+  const keywords = [
+    /siemens\s+westrace\s+ii/i, /s700k\s+point\s+machine/i, /gedo\s+ce/i,
+    /ups\s+\d+kva/i, /cctv\s+camera/i, /generator/i, /command\s+server/i,
+    /network\s+switch/i, /ticket\s+counter\s+pc/i, /axle\s+counter/i,
+    /track\s+circuit/i, /display\s+board/i, /fealthlite/i, /godrej/i,
+    /catalyst\s+\d+/i, /optiplex\s+\d+/i, /proliant\s+\d+/i, /elitebook/i, /thinksystem/i
+  ];
+  for (const kw of keywords) {
+    const m = text.match(kw);
+    if (m) return m[0];
+  }
+  
+  return null;
 }
 
 function extractSerialNumber(text) {
-  const m = text.match(/(?:serial\s*(?:no|number|#))[.:\s]*([A-Z0-9\-]+)/i);
-  return m ? m[1].trim() : null;
+  const patterns = [
+    /(?:serial\s*no|serial\s*number|serial\s*#|s\/n|s\.n\.|service\s*tag)[:.\s]*([A-Za-z0-9\-]{4,})/i,
+    /\b(?:sn|ser)[:\s]*([A-Za-z0-9\-]{4,})\b/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m && m[1]) {
+      const val = m[1].trim();
+      if (val.length >= 4 && !/^(total|date|invoice|code|price)$/i.test(val)) {
+        return val;
+      }
+    }
+  }
+  return null;
 }
 
 function calculateConfidence({ vendorName, invoiceNumber, invoiceDate, totalAmount }) {
