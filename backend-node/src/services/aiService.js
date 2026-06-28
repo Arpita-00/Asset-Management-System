@@ -25,11 +25,22 @@ async function chat(userMessage, currentUserId) {
   const systemPrompt = buildSystemPrompt(context);
 
   let aiResponse;
-  const apiKey = config.gemini.apiKey;
+  const providerType = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+  const apiKey = providerType === 'openai' ? process.env.OPENAI_API_KEY : config.gemini.apiKey;
 
-  if (!apiKey || apiKey === 'your-gemini-api-key' || apiKey === '') {
+  const isPlaceholder = !apiKey 
+    || apiKey === 'your-gemini-api-key' 
+    || apiKey === 'your_gemini_api_key_here'
+    || apiKey === 'your-openai-api-key'
+    || apiKey === '';
+
+  const hasValidPrefix = providerType === 'openai'
+    ? (apiKey && apiKey.startsWith('sk-'))
+    : (apiKey && apiKey.startsWith('AIzaSy'));
+
+  if (isPlaceholder || !hasValidPrefix) {
     // Fallback: rule-based response
-    logger.warn('Gemini API key not configured. Using rule-based fallback response.');
+    logger.warn(`${providerType.toUpperCase()} API key not configured or is a placeholder. Using rule-based fallback response.`);
     aiResponse = await generateFallbackResponse(userMessage);
   } else {
     try {
