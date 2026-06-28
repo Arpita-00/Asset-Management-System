@@ -485,8 +485,8 @@ async function getAssetHistory(assetId) {
     const userName = m.movedBy ? `${m.movedBy.firstName} ${m.movedBy.lastName}` : 'System';
 
     timeline.push({
-      type: m.movementType === 'TRANSFER' ? 'TRANSFERRED' : m.movementType,
-      title: `Asset ${m.movementType.replace('_', ' ')}`,
+      type: m.movementType === 'TRANSFER' ? 'TRANSFERRED' : (m.movementType || 'MOVEMENT'),
+      title: `Asset ${(m.movementType || 'MOVEMENT').replace('_', ' ')}`,
       description: desc,
       date: m.movementDate,
       user: userName

@@ -137,7 +137,7 @@ router.get('/public/passport/:assetTag', async (req, res) => {
     }),
     MaintenanceRequest.findAll({
       where: { assetId: asset.id },
-      order: [['startDate', 'DESC']],
+      order: [['createdAt', 'DESC']],
       limit: 10
     }),
     WarrantyTracking.findOne({
