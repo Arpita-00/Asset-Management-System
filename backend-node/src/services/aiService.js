@@ -26,7 +26,8 @@ async function chat(userMessage, currentUserId) {
 
   let aiResponse;
   const providerType = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
-  const apiKey = providerType === 'openai' ? process.env.OPENAI_API_KEY : config.gemini.apiKey;
+  const rawApiKey = providerType === 'openai' ? process.env.OPENAI_API_KEY : config.gemini.apiKey;
+  const apiKey = (rawApiKey || '').trim().replace(/^['"]|['"]$/g, '');
 
   const isPlaceholder = !apiKey 
     || apiKey === 'your-gemini-api-key' 
@@ -48,7 +49,7 @@ async function chat(userMessage, currentUserId) {
       aiResponse = await provider.generateResponse(systemPrompt, userMessage);
     } catch (err) {
       logger.error(`AI Provider call failed: ${err.message}`);
-      aiResponse = `⚠️ **AI Provider Request Failed**\n\nI encountered an issue connecting to the AI endpoint. Here is a rule-based query fallback instead:\n\n${await generateFallbackResponse(userMessage)}`;
+      aiResponse = `⚠️ **AI Provider Request Failed: ${err.message}**\n\nI encountered an issue connecting to the AI endpoint. Here is a rule-based query fallback instead:\n\n${await generateFallbackResponse(userMessage)}`;
     }
   }
 
