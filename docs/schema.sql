@@ -4,11 +4,6 @@
 -- Version: 1.0.0
 -- =============================================================================
 
-CREATE DATABASE IF NOT EXISTS asset_management_db
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-
-USE asset_management_db;
 
 -- =============================================================================
 -- ROLES TABLE
