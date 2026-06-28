@@ -1,0 +1,75 @@
+graph TD
+    %% Define Styles
+    classDef procurement fill:#d4edda,stroke:#28a745,stroke-width:2px;
+    classDef inventory fill:#cce5ff,stroke:#007bff,stroke-width:2px;
+    classDef allocation fill:#fff3cd,stroke:#ffc107,stroke-width:2px;
+    classDef operations fill:#f8d7da,stroke:#dc3545,stroke-width:2px;
+    classDef financial fill:#e2e3e5,stroke:#6c757d,stroke-width:2px;
+    classDef retirement fill:#e8daef,stroke:#8e44ad,stroke-width:2px;
+
+    subgraph Phase 1: Procurement & Ingestion
+        A[Procure New Asset] --> B{Ingestion Method}
+        B -->|Manual Entry| C[Fill Asset Form]
+        B -->|Scan Invoice/Receipt| D[Upload Invoice Image/PDF]
+        D --> E[Tesseract.js OCR Processing]
+        E --> F[Extract Vendor, Cost, Date, Specs]
+        F --> C
+        C --> G[Create Asset Record]
+        G --> H[Generate unique QR Code tag]
+        H --> I[Asset Status: AVAILABLE]
+    end
+    
+    subgraph Phase 2: Operations & Tracking
+        I --> J[Physically Tag Asset with QR Code]
+        J --> K{Trigger Action}
+        
+        %% Track Allocation
+        K -->|Allocate Asset| L[Select Employee & Date]
+        L --> M[Update Status: ASSIGNED]
+        M --> N[Log Asset Allocation & Movement]
+        N --> O[Send Nodemailer Email to Employee]
+        O --> P[Employee uses Asset]
+        P --> Q[Check-in/Return Asset]
+        Q --> R[Update Status: AVAILABLE]
+        R --> K
+
+        %% Track Maintenance
+        K -->|Report Malfunction| S[Create Maintenance Ticket: OPEN]
+        S --> T[Assign Technician: IN_PROGRESS]
+        T --> U[Asset Status: UNDER_REPAIR]
+        U --> V[Perform Repair & Log Cost/Downtime]
+        V --> W[Close Ticket: COMPLETED]
+        W --> R
+    end
+
+    subgraph Phase 3: Monitoring & Audits
+        K -->|Daily Cron Job| X[Run Scheduled System Tasks]
+        X --> Y[Recalculate Health Score & Risk Level]
+        Y --> Z{Health < 30?}
+        Z -->|Yes| AA[Send Critical Alert email & flag repair]
+        Z -->|No| AB[Update dashboard metrics]
+        
+        X --> AC[Scan Warranty End Dates]
+        AC --> AD{Expiry in < 90 Days?}
+        AD -->|Yes| AE[Send Warranty Expiry Warning email]
+        AD -->|No| AB
+        
+        K --> AF[Run Financial Year Close]
+        AF --> AG[Apply Depreciation: SLM or WDV]
+        AG --> AH[Log Depreciation Record & Update Book Value]
+    end
+
+    subgraph Phase 4: Retirement & Disposal
+        K -->|Asset End of Life / Lost| AI[Initiate Disposal Process]
+        AI --> AJ[Log Disposal Reason & Salvage Value]
+        AJ --> AK[Asset Status: DISPOSED / RETIRED]
+        AK --> AL[Deactivate Asset in Inventory]
+    end
+
+    %% Apply Classes
+    class A,B,C,D,E,F,G,H,I procurement;
+    class J,K,Q,R inventory;
+    class L,M,N,O,P allocation;
+    class S,T,U,V,W operations;
+    class X,Y,Z,AA,AB,AC,AD,AE,AF,AG,AH financial;
+    class AI,AJ,AK,AL retirement;
