@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Eye, EyeOff, Lock, Mail, LogIn, AlertCircle, ShieldCheck,
+  Eye, EyeOff, Lock, Mail, LogIn, AlertCircle,
   Users, Calendar, Monitor, Phone,
   FileText, ChevronRight, CheckCircle2, Sun, Moon
 } from 'lucide-react'
@@ -147,16 +147,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* SSL Secured */}
-            <div className="hidden md:flex items-center gap-2.5 text-left">
-              <div className={`p-2 rounded ${isDark ? 'bg-emerald-950/50 text-emerald-455' : 'bg-emerald-50 text-emerald-600'}`}>
-                <ShieldCheck size={16} />
-              </div>
-              <div>
-                <div className={`text-sm font-black font-mono ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>SSL Secured</div>
-                <div className="text-[11px] font-bold text-slate-455 leading-none">256-bit Encryption</div>
-              </div>
-            </div>
 
             {/* Server Status */}
             <div className="hidden md:flex items-center gap-2.5 text-left">
