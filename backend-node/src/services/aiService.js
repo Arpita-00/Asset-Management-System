@@ -142,7 +142,7 @@ async function buildDatabaseContext(query) {
           { model: Asset, as: 'asset', attributes: ['name', 'assetTag', 'purchaseCost'] },
           { model: Employee, as: 'employee', attributes: ['firstName', 'lastName'], include: [{ model: Department, as: 'department', attributes: ['name'] }] }
         ],
-        order: [['allocatedAt', 'DESC']],
+        order: [['allocatedDate', 'DESC']],
         limit: 15
       });
       ctx += `--- ACTIVE ASSET ALLOCATIONS ---\n`;
@@ -152,7 +152,7 @@ async function buildDatabaseContext(query) {
         recentAllocations.forEach(a => {
           const empName = a.employee ? `${a.employee.firstName} ${a.employee.lastName}` : 'N/A';
           const deptName = a.employee?.department?.name || 'N/A';
-          ctx += `- Asset: [${a.asset?.assetTag || 'N/A'}] ${a.asset?.name || 'N/A'} | Allocated To: ${empName} | Dept: ${deptName} | Allocated On: ${a.allocatedAt}\n`;
+          ctx += `- Asset: [${a.asset?.assetTag || 'N/A'}] ${a.asset?.name || 'N/A'} | Allocated To: ${empName} | Dept: ${deptName} | Allocated On: ${a.allocatedDate}\n`;
         });
       }
     }
@@ -190,7 +190,9 @@ async function buildDatabaseContext(query) {
         ctx += 'No budget forecasts recorded.\n';
       } else {
         forecasts.forEach(f => {
-          ctx += `- Dept: ${f.department?.name || 'N/A'} | Year: ${f.fiscalYear} | Limit: $${f.allocatedAmount} | Spent/Committed: $${f.spentAmount} | Remaining: $${f.allocatedAmount - f.spentAmount}\n`;
+          const limit = parseFloat(f.estimatedAmount || 0);
+          const spent = parseFloat(f.actualAmount || 0);
+          ctx += `- Dept: ${f.department?.name || 'N/A'} | Year: ${f.financialYear || 'N/A'} | Limit: $${limit.toFixed(2)} | Spent/Committed: $${spent.toFixed(2)} | Remaining: $${(limit - spent).toFixed(2)}\n`;
         });
       }
     }
