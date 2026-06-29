@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-  Eye, EyeOff, Lock, Mail, LogIn, AlertCircle, Database, ShieldCheck,
-  Wrench, ShieldAlert, Users, Calendar, Shield, Monitor, Phone,
+  Eye, EyeOff, Lock, Mail, LogIn, AlertCircle, ShieldCheck,
+  Users, Calendar, Monitor, Phone,
   FileText, ChevronRight, CheckCircle2, Sun, Moon
 } from 'lucide-react'
 import { useMutation } from '@tanstack/react-query'
@@ -13,8 +13,6 @@ import { useToast } from '../../hooks/useToast'
 import { getErrorMessage } from '../../utils/formatters'
 import irLogo from '../../assets/images/indian_railways.png'
 import trainWatermark from '../../assets/images/train_watermark.png'
-import { dashboardApi } from '../../api/index'
-import { demoDashboard } from '../../api/mockData'
 import useThemeStore from '../../store/themeStore'
 
 export default function LoginPage() {
@@ -66,8 +64,7 @@ export default function LoginPage() {
     initTheme()
   }, [initTheme])
 
-  // Use mock data directly on login page to avoid 401 unauthorized reload loops
-  const stats = demoDashboard
+
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
@@ -111,10 +108,6 @@ export default function LoginPage() {
           <div className="flex items-center gap-1.5">
             <span className="hidden sm:inline">भारत सरकार | GOVERNMENT OF INDIA</span>
             <span className="sm:hidden">GOVT. OF INDIA</span>
-          </div>
-          <div className="hidden sm:flex items-center gap-1.5">
-            <Lock size={10} className="text-amber-500" />
-            <span>SECURE PORTAL</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="hidden sm:inline">रेल मंत्रालय | MINISTRY OF RAILWAYS</span>
@@ -226,31 +219,6 @@ export default function LoginPage() {
               <p className="text-sm font-semibold text-slate-500 tracking-wide pt-1">
                 AI-Powered &bull; Secure &bull; Intelligent &bull; Efficient
               </p>
-            </div>
-
-            {/* Stats Row (5 white rounded cards matching mockup) */}
-            <div className="flex flex-wrap gap-4">
-              {[
-                { label: 'Total Assets', val: stats?.totalAssets ? stats.totalAssets.toLocaleString() : '8,250', icon: Database, color: isDark ? 'text-rose-400 bg-rose-950/20 border-rose-900/40' : 'text-red-700 bg-rose-50 border-rose-100' },
-                { label: 'Healthy Assets', val: '97%', icon: ShieldCheck, color: isDark ? 'text-emerald-400 bg-emerald-950/20 border-emerald-900/40' : 'text-emerald-700 bg-emerald-50 border-emerald-100' },
-                { label: 'Maintenance Today', val: stats?.openMaintenanceRequests ? stats.openMaintenanceRequests.toString() : '18', icon: Wrench, color: isDark ? 'text-amber-400 bg-amber-950/20 border-amber-900/40' : 'text-amber-700 bg-amber-50 border-amber-100' },
-                { label: 'Warranty Alerts', val: stats?.warrantyExpiringIn30Days ? stats.warrantyExpiringIn30Days.toString() : '34', icon: ShieldAlert, color: isDark ? 'text-purple-400 bg-purple-950/20 border-purple-900/40' : 'text-purple-700 bg-purple-50 border-purple-100' },
-                { label: 'Departments', val: '26', icon: Users, color: isDark ? 'text-blue-400 bg-blue-950/20 border-blue-900/40' : 'text-blue-700 bg-blue-50 border-blue-100' },
-              ].map((card, idx) => {
-                const CardIcon = card.icon
-                return (
-                  <div key={idx} className={`flex-1 min-w-[110px] p-4 rounded-xl border shadow-sm flex flex-col justify-between transition-colors duration-150 ${isDark ? 'bg-slate-900/50' : 'bg-white/82 backdrop-blur-sm'} ${card.color}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2.5 border ${isDark ? 'bg-slate-950 border-slate-800' : 'bg-white/82 border-slate-100 shadow-inner'
-                      }`}>
-                      <CardIcon size={16} />
-                    </div>
-                    <div>
-                      <div className={`text-base font-black leading-none mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{card.val}</div>
-                      <div className="text-[11px] font-bold text-slate-450 uppercase tracking-wider leading-tight">{card.label}</div>
-                    </div>
-                  </div>
-                )
-              })}
             </div>
 
             {/* Circulars Ticker Container */}
