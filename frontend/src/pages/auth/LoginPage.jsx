@@ -120,15 +120,15 @@ export default function LoginPage() {
           }`}>
           {/* Circular ECoR-style IR Crest and Title */}
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-full border-2 border-[#7c0a0a] p-1 flex items-center justify-center bg-slate-50 flex-shrink-0">
-              <img src={irLogo} alt="Indian Railways" className="w-full h-full object-contain" />
+            <div className="w-11 h-11 sm:w-14 sm:h-14 flex items-center justify-center flex-shrink-0">
+              <img src={irLogo} alt="Indian Railways" className="w-full h-full object-contain rounded-full shadow-md" />
             </div>
             <div className="text-left">
               <h2 className={`text-xs sm:text-base font-black uppercase tracking-wider leading-none mb-0.5 sm:mb-1 ${isDark ? 'text-amber-500' : 'text-[#1e3a8a]'
                 }`}>
                 East Coast Railway
               </h2>
-              <p className="text-[10px] sm:text-xs font-bold text-slate-550 leading-none">
+              <p className="text-[10px] sm:text-xs font-bold text-slate-500 leading-none">
                 पूर्व तट रेलवे
               </p>
             </div>
@@ -213,7 +213,7 @@ export default function LoginPage() {
 
             {/* Circulars Ticker Container */}
             <div className="space-y-2">
-              <div className={`flex items-center gap-2.5 ${isDark ? 'text-slate-200' : 'text-slate-855'}`}>
+              <div className={`flex items-center gap-2.5 ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>
                 <FileText size={16} className="text-[#d97706]" />
                 <h3 className="text-sm font-black uppercase tracking-wider">
                   Latest Division Circulars
@@ -401,22 +401,22 @@ export default function LoginPage() {
                 </div>
 
                 {/* Demo accounts credentials layout drawer */}
-                <div className={`p-4 border rounded-lg text-left flex items-start gap-3 transition-colors duration-150 ${isDark ? 'bg-slate-950/60 border-slate-800 text-slate-400' : 'bg-amber-50/40 border-amber-105 text-slate-550'
+                <div className={`p-4 border rounded-lg text-left flex items-start gap-3 transition-colors duration-150 ${isDark ? 'bg-slate-950/60 border-slate-800 text-slate-400' : 'bg-amber-50/40 border-amber-200 text-slate-600'
                   }`}>
                   <div className={`p-2 rounded mt-0.5 flex-shrink-0 border ${isDark ? 'bg-slate-900 text-amber-500 border-slate-850' : 'bg-amber-50 text-[#d97706] border-amber-100'
                     }`}>
                     <Monitor size={15} />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-amber-850 dark:text-amber-505 uppercase tracking-widest mb-1.5">
+                    <p className="text-[10px] font-black text-amber-800 dark:text-amber-500 uppercase tracking-widest mb-1.5">
                       Demo Credentials
                     </p>
                     <div className="space-y-1 text-[11px] font-mono leading-relaxed">
                       <div>
-                        <span className="font-bold text-slate-650 dark:text-slate-450">Admin:</span> admin@company.com / Admin@123
+                        <span className="font-bold text-slate-600 dark:text-slate-400">Admin:</span> admin@company.com / Admin@123
                       </div>
                       <div>
-                        <span className="font-bold text-slate-650 dark:text-slate-450">Employee:</span> employee@company.com / Emp@123
+                        <span className="font-bold text-slate-600 dark:text-slate-400">Employee:</span> employee@company.com / Emp@123
                       </div>
                     </div>
                   </div>
@@ -434,7 +434,7 @@ export default function LoginPage() {
               </div>
 
               {/* Login Card Footer Strip */}
-              <div className={`border-t px-6 py-3 flex justify-between items-center gap-1.5 text-[10px] font-bold tracking-wider transition-colors duration-150 ${isDark ? 'bg-slate-950/40 border-slate-855 text-slate-400' : 'bg-slate-55 border-slate-200/80 text-slate-550'
+              <div className={`border-t px-6 py-3 flex justify-between items-center gap-1.5 text-[10px] font-bold tracking-wider transition-colors duration-150 ${isDark ? 'bg-slate-950/40 border-slate-800 text-slate-400' : 'bg-slate-100 border-slate-200/80 text-slate-600'
                 }`}>
                 <div className="flex items-center gap-1">
                   <Phone size={11} className="text-[#1e3a8a] dark:text-blue-400" />
@@ -455,7 +455,7 @@ export default function LoginPage() {
         </main>
 
         {/* 4. Official Government Page Footer */}
-        <footer className={`relative z-10 flex-shrink-0 border-t px-4 sm:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4 select-none transition-colors duration-150 ${isDark ? 'bg-slate-950 border-slate-850 text-slate-400' : 'bg-white border-slate-200/80 text-slate-550'
+        <footer className={`relative z-10 flex-shrink-0 border-t px-4 sm:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4 select-none transition-colors duration-150 ${isDark ? 'bg-slate-950 border-slate-800 text-slate-400' : 'bg-white border-slate-200/80 text-slate-600'
           }`}>
           <div className="text-left">
             <h3 className="text-xs font-black text-[#1e3a8a] dark:text-blue-400 tracking-wider uppercase mb-0.5">

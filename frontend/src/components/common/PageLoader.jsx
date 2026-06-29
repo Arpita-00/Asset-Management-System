@@ -13,9 +13,8 @@ export default function PageLoader({ message = 'Loading...' }) {
         <div className="relative w-20 h-20 mx-auto mb-5">
           <div className="absolute inset-0 rounded-full border-4 border-transparent animate-spin"
                style={{ borderTopColor: '#8B0000', borderRightColor: 'rgba(184,134,11,0.4)', animationDuration: '1s' }} />
-          <div className="absolute inset-2 rounded-full flex items-center justify-center"
-               style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(184,134,11,0.3)' }}>
-            <img src={irLogo} alt="IR" className="w-full h-full object-contain rounded-full p-0.5" />
+          <div className="absolute inset-2 rounded-full flex items-center justify-center">
+            <img src={irLogo} alt="IR" className="w-full h-full object-contain rounded-full shadow-sm" />
           </div>
         </div>
         <p className="text-sm font-medium" style={{ color: 'rgba(160,178,200,0.9)' }}>{message}</p>
@@ -34,9 +33,8 @@ export function InlineLoader({ message = 'Loading data...' }) {
       <div className="relative w-12 h-12 mb-3">
         <div className="absolute inset-0 rounded-full border-3 border-transparent animate-spin"
              style={{ borderTopColor: '#8B0000', borderWidth: '3px', animationDuration: '1s' }} />
-        <div className="absolute inset-1.5 rounded-full flex items-center justify-center"
-             style={{ background: 'rgba(139,0,0,0.1)' }}>
-          <img src={irLogo} alt="IR" className="w-full h-full object-contain rounded-full" />
+        <div className="absolute inset-1.5 rounded-full flex items-center justify-center">
+          <img src={irLogo} alt="IR" className="w-full h-full object-contain rounded-full shadow-sm" />
         </div>
       </div>
       <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>{message}</p>

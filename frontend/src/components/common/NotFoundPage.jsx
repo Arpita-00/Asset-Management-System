@@ -19,8 +19,7 @@ export default function NotFoundPage() {
 
       <div className="text-center max-w-md animate-fade-in">
         <div className="flex justify-center mb-6">
-          <img src={irLogo} alt="Indian Railways" className="w-20 h-20 object-contain rounded-full"
-               style={{ padding: '4px', border: '2px solid rgba(184,134,11,0.4)', background: 'rgba(255,255,255,0.05)' }} />
+          <img src={irLogo} alt="Indian Railways" className="w-20 h-20 object-contain rounded-full shadow-md" />
         </div>
 
         <div className="rounded-xl overflow-hidden"

@@ -152,9 +152,8 @@ export default function ForgotPasswordPage() {
 
           <div className="text-center mb-7">
             <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center p-1"
-                   style={{ background: 'rgba(255,255,255,0.06)', border: '2px solid rgba(184,134,11,0.45)' }}>
-                <img src={irLogo} alt="IR" className="w-full h-full object-contain rounded-full" />
+              <div className="w-14 h-14 rounded-full flex items-center justify-center">
+                <img src={irLogo} alt="IR" className="w-full h-full object-contain rounded-full shadow-md" />
               </div>
             </div>
             <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: '#B8860B' }}>

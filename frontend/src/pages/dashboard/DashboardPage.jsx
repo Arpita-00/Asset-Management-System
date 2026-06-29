@@ -141,11 +141,11 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="w-1 h-5 rounded-sm" style={{ background: 'var(--railway-crimson)' }} />
-            <h1 className="text-base font-bold uppercase tracking-wider text-white">
+            <h1 className="text-base font-bold uppercase tracking-wider text-slate-800 dark:text-white">
               ECoR Divisional Asset Management System
             </h1>
           </div>
-          <p className="text-xs font-semibold text-slate-400 pl-3">
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 pl-3">
             Zonal Control Command Portal &bull; East Coast Railway
           </p>
         </div>
@@ -170,12 +170,12 @@ export default function DashboardPage() {
             {/* Primary Large Card */}
             <div className="card p-5 md:col-span-2 xl:col-span-3 flex flex-col justify-between min-h-[130px] border-l-4 border-l-[#7c0a0a] transition-all hover:translate-y-[-2px] hover:shadow-lg duration-200">
               <div>
-                <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-400">Total Registered Assets</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-500 dark:text-slate-400">Total Registered Assets</span>
                 <div className="flex items-baseline gap-2 mt-1">
-                  <span className="text-3xl font-black font-mono text-white">
+                  <span className="text-3xl font-black font-mono text-slate-900 dark:text-white">
                     {formatNumber(stats.totalAssets)}
                   </span>
-                  <span className="text-[10px] font-bold uppercase text-slate-500">Active Units</span>
+                  <span className="text-[10px] font-bold uppercase text-slate-600 dark:text-slate-400">Active Units</span>
                 </div>
               </div>
               <p className="text-[10px] mt-2 font-semibold text-slate-400">
@@ -206,12 +206,12 @@ export default function DashboardPage() {
 
             <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] hover:shadow-lg duration-200">
               <div>
-                <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-400">Under Repair</span>
+                <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-500 dark:text-slate-400">Under Repair</span>
                 <span className="text-2xl font-black font-mono text-amber-500 block mt-2">
                   {formatNumber(stats.underRepair)}
                 </span>
               </div>
-              <span className="text-[9px] font-bold uppercase text-slate-500">Workshop Queue</span>
+              <span className="text-[9px] font-bold uppercase text-slate-600 dark:text-slate-400">Workshop Queue</span>
             </div>
           </>
         ) : null}
@@ -221,22 +221,22 @@ export default function DashboardPage() {
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="card p-4 border-l-4 border-l-blue-900 transition-all hover:translate-y-[-2px] hover:shadow duration-200">
-            <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-400">Zonal Purchase Value</span>
-            <span className="text-xl font-black font-mono mt-1 block text-white">
+            <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-500 dark:text-slate-400">Zonal Purchase Value</span>
+            <span className="text-xl font-black font-mono mt-1 block text-slate-900 dark:text-white">
               {formatCurrency(stats.totalPurchaseValue)}
             </span>
           </div>
 
           <div className="card p-4 border-l-4 border-l-emerald-600 transition-all hover:translate-y-[-2px] hover:shadow duration-200">
-            <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-400">Current Book Value</span>
-            <span className="text-xl font-black font-mono text-emerald-400 mt-1 block">
+            <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-500 dark:text-slate-400">Current Book Value</span>
+            <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1 block">
               {formatCurrency(stats.totalCurrentValue)}
             </span>
           </div>
 
           <div className="card p-4 border-l-4 border-l-amber-600 transition-all hover:translate-y-[-2px] hover:shadow duration-200">
-            <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-400">Total Depreciation</span>
-            <span className="text-xl font-black font-mono text-amber-500 mt-1 block">
+            <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-500 dark:text-slate-400">Total Depreciation</span>
+            <span className="text-xl font-black font-mono text-amber-600 dark:text-amber-500 mt-1 block">
               {formatCurrency(stats.totalDepreciation)}
             </span>
           </div>
@@ -248,10 +248,10 @@ export default function DashboardPage() {
         
         {/* Left Side: Critical Assets list (lg:col-span-7) */}
         <div className="card p-5 lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between border-b pb-2.5 border-slate-800/80 select-none">
+          <div className="flex items-center justify-between border-b pb-2.5 border-slate-200 dark:border-slate-800/80 select-none">
             <div className="flex items-center gap-2">
               <ShieldAlert size={14} className="text-rose-500" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-white">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
                 Critical Assets & Risk Status
               </h3>
             </div>
@@ -263,18 +263,18 @@ export default function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs font-semibold">
               <thead>
-                <tr className="border-b border-slate-800/80 text-[10px] uppercase tracking-wider text-slate-450 bg-slate-900/40">
+                <tr className="border-b border-slate-200 dark:border-slate-800/80 text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/40">
                   <th className="py-2.5 px-3">Asset & Tag</th>
                   <th className="py-2.5 px-3 text-center">Health</th>
                   <th className="py-2.5 px-3 text-center">Status</th>
                   <th className="py-2.5 px-3">Recommended action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/40">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
                 {criticalAssets.map((asset, i) => (
-                  <tr key={i} className="hover:bg-slate-900/30 transition-colors">
+                  <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="py-3 px-3">
-                      <div className="font-bold text-white leading-tight">{asset.name}</div>
+                      <div className="font-bold text-slate-900 dark:text-white leading-tight">{asset.name}</div>
                       <div className="text-[9.5px] font-mono text-slate-500 mt-0.5">{asset.tag}</div>
                     </td>
                     <td className="py-3 px-3 text-center">
@@ -304,10 +304,10 @@ export default function DashboardPage() {
 
         {/* Right Side: Today's Operations feed (lg:col-span-5) */}
         <div className="card p-5 lg:col-span-5 space-y-4">
-          <div className="flex items-center justify-between border-b pb-2.5 border-slate-800/80 select-none">
+          <div className="flex items-center justify-between border-b pb-2.5 border-slate-200 dark:border-slate-800/80 select-none">
             <div className="flex items-center gap-2">
-              <Activity size={14} className="text-blue-400 animate-pulse" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-white">
+              <Activity size={14} className="text-blue-500 dark:text-blue-400 animate-pulse" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
                 Today's Zonal Operations
               </h3>
             </div>
@@ -322,19 +322,19 @@ export default function DashboardPage() {
                 { label: 'Active Warranty Alerts', count: stats.warrantyExpiringIn30Days || 14, desc: 'Expires in 30 days', color: 'text-rose-500' },
                 { label: 'Invoices Processed', count: 4, desc: 'OCR scans completed', color: 'text-emerald-500' },
               ].map((item, idx) => (
-                <div key={idx} className="p-3.5 rounded-xl border border-slate-800/60 bg-slate-900/40 text-left">
-                  <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">{item.label}</span>
+                <div key={idx} className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40 text-left">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">{item.label}</span>
                   <div className={`text-2xl font-black font-mono mt-1 ${item.color}`}>
                     {item.count}
                   </div>
-                  <span className="text-[9.5px] font-semibold text-slate-500 mt-1 block leading-none">{item.desc}</span>
+                  <span className="text-[9.5px] font-semibold text-slate-600 dark:text-slate-505 mt-1 block leading-none">{item.desc}</span>
                 </div>
               ))}
               
-              <div className="col-span-2 p-3.5 rounded-xl border border-slate-800/60 bg-slate-900/40 text-left flex items-center justify-between">
+              <div className="col-span-2 p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/60 bg-slate-50/50 dark:bg-slate-900/40 text-left flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wider block">Recent Asset Movement</span>
-                  <span className="text-xs font-bold text-white mt-1 block">Platform Display Board moved to Puri Station</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Recent Asset Movement</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-slate-200 mt-1 block">Platform Display Board moved to Puri Station</span>
                 </div>
                 <ArrowRight size={16} className="text-slate-500" />
               </div>
@@ -346,9 +346,9 @@ export default function DashboardPage() {
 
       {/* ── Quick Action Bar ────────────────────────────────────────────────── */}
       <div className="card p-4 space-y-3">
-        <div className="flex items-center gap-2 border-b pb-1.5 border-slate-800/80">
-          <Terminal size={13} className="text-blue-400" />
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+        <div className="flex items-center gap-2 border-b pb-1.5 border-slate-200 dark:border-slate-800/80">
+          <Terminal size={13} className="text-blue-500 dark:text-blue-400" />
+          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-650 dark:text-slate-400">
             Operations Command Bar
           </h4>
         </div>
@@ -366,11 +366,11 @@ export default function DashboardPage() {
               <button
                 key={idx}
                 onClick={() => navigate(btn.path)}
-                className="px-4 py-2.5 rounded-lg border border-slate-800 bg-slate-900/40 text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 hover:-translate-y-0.5 hover:border-blue-500/50 hover:bg-slate-900/80 active:translate-y-0 flex items-center gap-2 group shadow-sm"
+                className="px-4 py-2.5 rounded-lg border border-slate-250 dark:border-slate-800 bg-slate-105 dark:bg-slate-900/40 text-slate-800 dark:text-white font-bold text-xs uppercase tracking-wider transition-all duration-150 hover:-translate-y-0.5 hover:border-blue-500/50 hover:bg-slate-200 dark:hover:bg-slate-900/80 active:translate-y-0 flex items-center gap-2 group shadow-sm"
               >
                 <BtnIcon size={14} className="text-[#3b82f6] group-hover:scale-110 transition-transform" />
                 <span>{btn.label}</span>
-                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 text-[9px] font-mono leading-none border border-slate-700/40 ml-1">
+                <span className="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-500 text-[9px] font-mono leading-none border border-slate-300 dark:border-slate-700/40 ml-1">
                   {btn.shortcut}
                 </span>
               </button>
@@ -381,14 +381,14 @@ export default function DashboardPage() {
 
       {/* ── Recent Activity Feed Timeline ──────────────────────────────────── */}
       <div className="card p-5 space-y-4">
-        <div className="flex items-center gap-2 border-b pb-2.5 border-slate-800/80 select-none">
+        <div className="flex items-center gap-2 border-b pb-2.5 border-slate-200 dark:border-slate-800/80 select-none">
           <Clock size={14} className="text-[#7c0a0a]" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-white">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
             Divisional Dispatch & Activity Timeline
           </h3>
         </div>
 
-        <div className="relative border-l border-slate-800 ml-4 pl-6 space-y-5">
+        <div className="relative border-l border-slate-200 dark:border-slate-800 ml-4 pl-6 space-y-5">
           {activityTimeline.map((item, idx) => (
             <div key={idx} className="relative group text-left">
               {/* Timeline dot */}
@@ -400,9 +400,9 @@ export default function DashboardPage() {
                   : 'bg-blue-500 border-blue-950/80'
               } group-hover:scale-125 transition-transform`} />
 
-              <div className={`p-3.5 rounded-xl border border-slate-800/40 bg-slate-900/20 hover:border-slate-700/60 transition-all duration-150 flex flex-col sm:flex-row justify-between sm:items-center gap-2`}>
+              <div className={`p-3.5 rounded-xl border border-slate-200 dark:border-slate-800/40 bg-slate-50/30 dark:bg-slate-900/20 hover:border-slate-350 dark:hover:border-slate-700/60 transition-all duration-150 flex flex-col sm:flex-row justify-between sm:items-center gap-2`}>
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-white">{item.text}</p>
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-200">{item.text}</p>
                   <div className="flex flex-wrap gap-x-3 text-[10px] font-semibold text-slate-500">
                     <span>Officer: {item.user}</span>
                     <span>&bull;</span>
@@ -438,9 +438,9 @@ export default function DashboardPage() {
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  outerRadius={85}
-                  innerRadius={50}
+                  cy="45%"
+                  outerRadius={72}
+                  innerRadius={42}
                   paddingAngle={3}
                 >
                   {statusChart.map((_, i) => (
@@ -448,7 +448,7 @@ export default function DashboardPage() {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase' }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -466,11 +466,12 @@ export default function DashboardPage() {
           </div>
           {categoryChart ? (
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={categoryChart} barSize={24}>
+              <BarChart data={categoryChart} barSize={24} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="2 2" stroke="rgba(var(--text-muted)/0.15)" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
                 <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
                 <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
                 <Bar dataKey="value" name="Asset Count" radius={[2, 2, 0, 0]}>
                   {categoryChart.map((_, i) => (
                     <Cell key={i} fill={primaryColors[i % primaryColors.length]} />
@@ -499,9 +500,9 @@ export default function DashboardPage() {
                   dataKey="value"
                   nameKey="name"
                   cx="50%"
-                  cy="50%"
-                  outerRadius={85}
-                  innerRadius={50}
+                  cy="45%"
+                  outerRadius={72}
+                  innerRadius={42}
                   paddingAngle={3}
                 >
                   {healthChart.map((_, i) => (
@@ -509,7 +510,7 @@ export default function DashboardPage() {
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase' }} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -527,11 +528,12 @@ export default function DashboardPage() {
           </div>
           {deptChart ? (
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={deptChart} layout="vertical" barSize={12}>
+              <BarChart data={deptChart} layout="vertical" barSize={12} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="2 2" stroke="rgba(var(--text-muted)/0.15)" />
                 <XAxis type="number" tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} width={80} stroke="rgba(var(--text-muted)/0.3)" />
+                <YAxis dataKey="name" type="category" tick={{ fontSize: 8, fill: 'rgb(var(--text-secondary))' }} width={95} stroke="rgba(var(--text-muted)/0.3)" />
                 <Tooltip content={<CustomTooltip />} />
+                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
                 <Bar dataKey="value" name="Assets Count" radius={[0, 2, 2, 0]} fill="var(--railway-crimson)" />
               </BarChart>
             </ResponsiveContainer>

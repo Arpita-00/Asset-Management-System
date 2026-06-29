@@ -8,7 +8,6 @@ import useLanguageStore from '../../store/languageStore'
 import { useTranslation } from '../../utils/translations'
 import { notificationApi } from '../../api/index'
 import { initials } from '../../utils/formatters'
-import irLogo from '../../assets/images/indian_railways.png'
 
 export default function TopBar({ onMenuClick }) {
   const { isDark, toggleTheme } = useThemeStore()

@@ -207,8 +207,8 @@ export default function Sidebar({ isOpen, onClose }) {
         {/* ── Brand Header ──────────────────────────────────────────────────── */}
         <div className="flex-shrink-0 px-4 py-5 flex items-center gap-3"
              style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.1)' }}>
-          <div className="w-9 h-9 rounded bg-white p-1.5 flex items-center justify-center flex-shrink-0">
-            <img src={irLogo} alt="Indian Railways" className="w-full h-full object-contain" />
+          <div className="w-9 h-9 flex items-center justify-center flex-shrink-0">
+            <img src={irLogo} alt="Indian Railways" className="w-full h-full object-contain rounded-full shadow-sm" />
           </div>
           <div className="min-w-0">
             <div className="sidebar-brand-sub font-extrabold text-[10px] uppercase tracking-wider leading-none">
