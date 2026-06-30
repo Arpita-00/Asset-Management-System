@@ -66,10 +66,7 @@ export default function DashboardPage() {
     queryFn: () => dashboardApi.getStatusChart().then(r => r.data.data),
   })
 
-  const { data: healthChart } = useQuery({
-    queryKey: ['dashboard', 'health'],
-    queryFn: () => dashboardApi.getHealthChart().then(r => r.data.data),
-  })
+
 
   const { data: deptChart } = useQuery({
     queryKey: ['dashboard', 'department'],
@@ -145,7 +142,7 @@ export default function DashboardPage() {
               ECoR Divisional Asset Management System
             </h1>
           </div>
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 pl-3">
+          <p className="text-xs font-semibold text-slate-550 dark:text-slate-400 pl-3">
             Zonal Control Command Portal &bull; East Coast Railway
           </p>
         </div>
@@ -168,7 +165,7 @@ export default function DashboardPage() {
         ) : stats ? (
           <>
             {/* Primary Large Card */}
-            <div className="card p-5 md:col-span-2 xl:col-span-3 flex flex-col justify-between min-h-[130px] border-l-4 border-l-[#7c0a0a] transition-all hover:translate-y-[-2px] hover:shadow-lg duration-200">
+            <div className="card p-5 md:col-span-2 xl:col-span-3 flex flex-col justify-between min-h-[130px] border-l-4 border-l-[#7c0a0a] transition-all hover:translate-y-[-2px] duration-200">
               <div>
                 <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-500 dark:text-slate-400">Total Registered Assets</span>
                 <div className="flex items-baseline gap-2 mt-1">
@@ -184,7 +181,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Smaller Secondary Cards */}
-            <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] hover:shadow-lg duration-200">
+            <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] duration-200">
               <div>
                 <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-400">Available</span>
                 <span className="text-2xl font-black font-mono text-emerald-500 block mt-2">
@@ -194,7 +191,7 @@ export default function DashboardPage() {
               <span className="text-[9px] font-bold uppercase text-slate-500">Ready for Deployment</span>
             </div>
 
-            <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] hover:shadow-lg duration-200">
+            <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] duration-200">
               <div>
                 <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-400">Assigned</span>
                 <span className="text-2xl font-black font-mono text-blue-400 block mt-2">
@@ -204,7 +201,7 @@ export default function DashboardPage() {
               <span className="text-[9px] font-bold uppercase text-slate-500">In Active Service</span>
             </div>
 
-            <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] hover:shadow-lg duration-200">
+            <div className="card p-4 flex flex-col justify-between min-h-[130px] transition-all hover:translate-y-[-2px] duration-200">
               <div>
                 <span className="text-[9px] font-bold uppercase tracking-widest block text-slate-500 dark:text-slate-400">Under Repair</span>
                 <span className="text-2xl font-black font-mono text-amber-500 block mt-2">
@@ -220,21 +217,21 @@ export default function DashboardPage() {
       {/* ── Financial Ledger Row ────────────────────────────────────────────── */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="card p-4 border-l-4 border-l-blue-900 transition-all hover:translate-y-[-2px] hover:shadow duration-200">
+          <div className="card p-4 border-l-4 border-l-blue-900 transition-all hover:translate-y-[-2px] duration-200">
             <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-500 dark:text-slate-400">Zonal Purchase Value</span>
             <span className="text-xl font-black font-mono mt-1 block text-slate-900 dark:text-white">
               {formatCurrency(stats.totalPurchaseValue)}
             </span>
           </div>
 
-          <div className="card p-4 border-l-4 border-l-emerald-600 transition-all hover:translate-y-[-2px] hover:shadow duration-200">
+          <div className="card p-4 border-l-4 border-l-emerald-600 transition-all hover:translate-y-[-2px] duration-200">
             <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-500 dark:text-slate-400">Current Book Value</span>
             <span className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1 block">
               {formatCurrency(stats.totalCurrentValue)}
             </span>
           </div>
 
-          <div className="card p-4 border-l-4 border-l-amber-600 transition-all hover:translate-y-[-2px] hover:shadow duration-200">
+          <div className="card p-4 border-l-4 border-l-amber-600 transition-all hover:translate-y-[-2px] duration-200">
             <span className="text-[9px] font-bold uppercase tracking-wider block text-slate-500 dark:text-slate-400">Total Depreciation</span>
             <span className="text-xl font-black font-mono text-amber-600 dark:text-amber-500 mt-1 block">
               {formatCurrency(stats.totalDepreciation)}
@@ -447,7 +444,7 @@ export default function DashboardPage() {
                     <Cell key={i} fill={primaryColors[i % primaryColors.length]} />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
               </PieChart>
             </ResponsiveContainer>
@@ -470,7 +467,7 @@ export default function DashboardPage() {
                 <CartesianGrid strokeDasharray="2 2" stroke="rgba(var(--text-muted)/0.15)" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
                 <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
                 <Bar dataKey="value" name="Asset Count" radius={[2, 2, 0, 0]}>
                   {categoryChart.map((_, i) => (
@@ -484,42 +481,8 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Asset Health Distribution */}
-        <div className="card p-5">
-          <div className="border-b pb-2.5 border-slate-100 dark:border-slate-800/80 mb-4 flex items-center justify-between select-none">
-            <h4 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">
-              Asset Health Distribution
-            </h4>
-            <span className="text-[9px] font-mono text-slate-400">HEALTH LEVEL</span>
-          </div>
-          {healthChart ? (
-            <ResponsiveContainer width="100%" height={260}>
-              <PieChart>
-                <Pie
-                  data={healthChart}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="45%"
-                  outerRadius={72}
-                  innerRadius={42}
-                  paddingAngle={3}
-                >
-                  {healthChart.map((_, i) => (
-                    <Cell key={i} fill={primaryColors[(i + 2) % primaryColors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-xs text-slate-500">Retrieving health chart...</div>
-          )}
-        </div>
-
         {/* Department Distribution */}
-        <div className="card p-5">
+        <div className="card p-5 lg:col-span-2">
           <div className="border-b pb-2.5 border-slate-100 dark:border-slate-800/80 mb-4 flex items-center justify-between select-none">
             <h4 className="text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider">
               Department-wise Assets
@@ -527,14 +490,18 @@ export default function DashboardPage() {
             <span className="text-[9px] font-mono text-slate-400">DEPARTMENT BAR LIST</span>
           </div>
           {deptChart ? (
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={deptChart} layout="vertical" barSize={12} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <ResponsiveContainer width="100%" height={340}>
+              <BarChart data={deptChart} barSize={32} margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="2 2" stroke="rgba(var(--text-muted)/0.15)" />
-                <XAxis type="number" tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 8, fill: 'rgb(var(--text-secondary))' }} width={95} stroke="rgba(var(--text-muted)/0.3)" />
-                <Tooltip content={<CustomTooltip />} />
+                <XAxis dataKey="name" tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" angle={-25} textAnchor="end" interval={0} height={60} />
+                <YAxis tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
+                <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
-                <Bar dataKey="value" name="Assets Count" radius={[0, 2, 2, 0]} fill="var(--railway-crimson)" />
+                <Bar dataKey="value" name="Assets Count" radius={[3, 3, 0, 0]}>
+                  {deptChart.map((_, i) => (
+                    <Cell key={i} fill={primaryColors[i % primaryColors.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (

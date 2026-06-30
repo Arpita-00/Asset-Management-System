@@ -24,13 +24,13 @@
   --railway-gold:          #D97706;   /* Active state accent gold */
 
   /* ── LIGHT THEME ── */
-  --bg-base:         235 238 245;     /* Blue-tinted cool grey */
-  --bg-surface:      255 255 255;     /* Pure white cards */
-  --bg-elevated:     246 248 252;     /* Very subtle blue-grey */
-  --text-primary:    10 15 35;        /* Near-black */
-  --text-secondary:  38 52 78;        /* Strong dark blue-grey */
-  --text-muted:      82 100 125;      /* Readable muted */
-  --border-color:    210 218 232;     /* Blue-tinted border */
+  --bg-base:         240 244 250;     /* Clean ice-blue slate base background for government portals */
+  --bg-surface:      255 255 255;     /* High-clarity white card backgrounds */
+  --bg-elevated:     248 250 252;     /* Off-white elevated panel backgrounds */
+  --text-primary:    10 15 30;        /* Near-black for maximum accessibility and readability */
+  --text-secondary:  20 30 50;        /* Dark slate-900 for subtitles and secondary headers */
+  --text-muted:      26 54 125;       /* Official Deep Navy instead of grey for descriptions, icons, and metadata */
+  --border-color:    186 200 220;     /* Defined borders for clean inputs, grids, and division lines */
 
   /* Semantic RGB channels */
   --color-primary:   124 10 10;
@@ -518,90 +518,177 @@ select.input {
 .th-sortable:hover { color: var(--railway-crimson); }
 
 /* ─── Light Mode Text Contrast Fixes ────────────────────────────────────────── */
-html:not(.dark) .text-white:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag) {
+/* Force all white and very light text to be dark/near-black in light mode */
+html:not(.dark) .text-white:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-slate-50"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-slate-100"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-slate-200"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-gray-50"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-gray-100"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-gray-200"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-zinc-50"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-zinc-100"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-zinc-200"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-neutral-50"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-neutral-100"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-neutral-200"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-stone-50"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-stone-100"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag),
+html:not(.dark) [class*="text-stone-200"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]):not(.table-asset-tag) {
   color: rgb(var(--text-primary)) !important;
 }
-html:not(.dark) .text-slate-100:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: rgb(var(--text-primary)) !important;
-}
-html:not(.dark) .text-slate-200:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: rgb(var(--text-primary)) !important;
-}
-html:not(.dark) .text-slate-300:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+
+/* Force light gray/slate/zinc/neutral/stone to be dark slate in light mode */
+html:not(.dark) [class*="text-slate-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-350"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
   color: rgb(var(--text-secondary)) !important;
 }
-html:not(.dark) .text-slate-350:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: rgb(var(--text-secondary)) !important;
-}
-html:not(.dark) .text-slate-400:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: rgb(var(--text-muted)) !important;
-}
-html:not(.dark) .text-slate-450:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: rgb(var(--text-muted)) !important;
-}
-html:not(.dark) .text-slate-455:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: rgb(var(--text-muted)) !important;
-}
-html:not(.dark) .text-slate-500:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+
+/* Force mid-level gray/slate/zinc/neutral/stone to be deep navy in light mode */
+html:not(.dark) [class*="text-slate-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-450"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-455"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-550"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
   color: rgb(var(--text-muted)) !important;
 }
 
-/* Explicitly restore dark-mode colors inside sidebar (aside) and topbars (header) in light mode */
+/* Force dark Tailwind values to map to text-primary in light mode to look premium */
+html:not(.dark) [class*="text-slate-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-slate-955"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-gray-955"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-zinc-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-neutral-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html:not(.dark) [class*="text-stone-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+  color: rgb(var(--text-primary)) !important;
+}
+
+/* Explicitly restore dark-mode colors inside sidebar (aside) and topbars (header) in light mode since they are permanently dark */
 html:not(.dark) aside .text-white,
 html:not(.dark) header .text-white {
   color: #ffffff !important;
 }
-html:not(.dark) aside .text-slate-100,
-html:not(.dark) header .text-slate-100 {
+html:not(.dark) aside [class*="text-slate-100"],
+html:not(.dark) header [class*="text-slate-100"],
+html:not(.dark) aside [class*="text-gray-100"],
+html:not(.dark) header [class*="text-gray-100"] {
   color: #f1f5f9 !important;
 }
-html:not(.dark) aside .text-slate-200,
-html:not(.dark) header .text-slate-200 {
+html:not(.dark) aside [class*="text-slate-200"],
+html:not(.dark) header [class*="text-slate-200"],
+html:not(.dark) aside [class*="text-gray-200"],
+html:not(.dark) header [class*="text-gray-200"] {
   color: #e2e8f0 !important;
 }
-html:not(.dark) aside .text-slate-300,
-html:not(.dark) header .text-slate-300 {
+html:not(.dark) aside [class*="text-slate-300"],
+html:not(.dark) header [class*="text-slate-300"],
+html:not(.dark) aside [class*="text-gray-300"],
+html:not(.dark) header [class*="text-gray-300"] {
   color: #cbd5e1 !important;
 }
-html:not(.dark) aside .text-slate-400,
-html:not(.dark) header .text-slate-400 {
+html:not(.dark) aside [class*="text-slate-400"],
+html:not(.dark) header [class*="text-slate-400"],
+html:not(.dark) aside [class*="text-slate-500"],
+html:not(.dark) header [class*="text-slate-500"],
+html:not(.dark) aside [class*="text-gray-400"],
+html:not(.dark) header [class*="text-gray-400"],
+html:not(.dark) aside [class*="text-gray-500"],
+html:not(.dark) header [class*="text-gray-500"] {
   color: #94a3b8 !important;
 }
 
 /* ─── Dark Mode Text Contrast Fixes ────────────────────────────────────────── */
-html.dark .text-slate-950:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-900:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-850:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-800:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+/* Force dark text colors to become light primary text in dark mode */
+html.dark [class*="text-slate-950"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-850"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
 html.dark .text-black:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-indigo-950:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-indigo-900:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-gray-900:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-gray-800:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+html.dark [class*="text-indigo-950"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-indigo-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-850"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-900"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
   color: rgb(var(--text-primary)) !important;
 }
 
-html.dark .text-slate-750:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-700:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-655:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-600:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-indigo-850:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-indigo-800:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-indigo-700:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-gray-700:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+/* Force medium dark text colors to become light secondary text in dark mode */
+html.dark [class*="text-slate-750"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-655"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-indigo-850"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-indigo-800"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-indigo-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-700"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-600"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
   color: rgb(var(--text-secondary)) !important;
 }
 
-/* Brighten mid-slate labels (Total Registered Assets, Active Units) in Dark Mode */
-html.dark .text-slate-400:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-450:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-455:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-500:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: #cbd5e1 !important; /* Highly visible Slate-300 in dark mode */
+/* Force mid-level gray/slate text to be highly visible Slate-300 in dark mode */
+html.dark [class*="text-slate-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-450"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-455"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-400"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-500"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+  color: #cbd5e1 !important; /* Highly visible Slate-300 */
 }
-html.dark .text-slate-300:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
-html.dark .text-slate-350:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
-  color: #f1f5f9 !important; /* Highly visible Slate-100 in dark mode */
+
+/* Force bright gray/slate text to be extremely bright Slate-100 in dark mode */
+html.dark [class*="text-slate-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-slate-350"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-gray-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-zinc-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-neutral-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]),
+html.dark [class*="text-stone-300"]:not(.btn):not(.badge):not([class*="status-"]):not([class*="bg-"]) {
+  color: #f1f5f9 !important; /* Highly visible Slate-100 */
 }
 
 /* ─── Light Mode Hardcoded Background/Border/Text Reset ─────────────────────── */
