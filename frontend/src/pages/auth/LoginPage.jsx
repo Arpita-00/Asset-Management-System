@@ -104,7 +104,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 flex flex-col min-h-screen justify-between">
         {/* 1. Official Government Header Strip */}
-        <header className="px-3 sm:px-6 py-1.5 flex flex-row items-center justify-between bg-[#7c0a0a] text-[8.5px] sm:text-xs font-bold uppercase tracking-wider text-white shadow-md">
+        <header className="gov-strip px-3 sm:px-6 py-1.5 flex flex-row items-center justify-between bg-[#7c0a0a] text-[8.5px] sm:text-xs font-bold uppercase tracking-wider text-white shadow-md">
           <div className="flex items-center gap-1.5">
             <span className="hidden sm:inline">भारत सरकार | GOVERNMENT OF INDIA</span>
             <span className="sm:hidden">GOVT. OF INDIA</span>

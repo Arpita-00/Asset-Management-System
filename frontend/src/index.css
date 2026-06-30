@@ -591,37 +591,37 @@ html:not(.dark) [class*="text-stone-900"]:not(.btn):not(.badge):not([class*="sta
   color: rgb(var(--text-primary)) !important;
 }
 
-/* Explicitly restore dark-mode colors inside sidebar (aside) and topbars (header) in light mode since they are permanently dark */
+/* Explicitly restore dark-mode colors inside sidebar (aside) and topbars (.gov-strip) in light mode since they are permanently dark */
 html:not(.dark) aside .text-white,
-html:not(.dark) header .text-white {
+html:not(.dark) .gov-strip .text-white {
   color: #ffffff !important;
 }
 html:not(.dark) aside [class*="text-slate-100"],
-html:not(.dark) header [class*="text-slate-100"],
+html:not(.dark) .gov-strip [class*="text-slate-100"],
 html:not(.dark) aside [class*="text-gray-100"],
-html:not(.dark) header [class*="text-gray-100"] {
+html:not(.dark) .gov-strip [class*="text-gray-100"] {
   color: #f1f5f9 !important;
 }
 html:not(.dark) aside [class*="text-slate-200"],
-html:not(.dark) header [class*="text-slate-200"],
+html:not(.dark) .gov-strip [class*="text-slate-200"],
 html:not(.dark) aside [class*="text-gray-200"],
-html:not(.dark) header [class*="text-gray-200"] {
+html:not(.dark) .gov-strip [class*="text-gray-200"] {
   color: #e2e8f0 !important;
 }
 html:not(.dark) aside [class*="text-slate-300"],
-html:not(.dark) header [class*="text-slate-300"],
+html:not(.dark) .gov-strip [class*="text-slate-300"],
 html:not(.dark) aside [class*="text-gray-300"],
-html:not(.dark) header [class*="text-gray-300"] {
+html:not(.dark) .gov-strip [class*="text-gray-300"] {
   color: #cbd5e1 !important;
 }
 html:not(.dark) aside [class*="text-slate-400"],
-html:not(.dark) header [class*="text-slate-400"],
+html:not(.dark) .gov-strip [class*="text-slate-400"],
 html:not(.dark) aside [class*="text-slate-500"],
-html:not(.dark) header [class*="text-slate-500"],
+html:not(.dark) .gov-strip [class*="text-slate-500"],
 html:not(.dark) aside [class*="text-gray-400"],
-html:not(.dark) header [class*="text-gray-400"],
+html:not(.dark) .gov-strip [class*="text-gray-400"],
 html:not(.dark) aside [class*="text-gray-500"],
-html:not(.dark) header [class*="text-gray-500"] {
+html:not(.dark) .gov-strip [class*="text-gray-500"] {
   color: #94a3b8 !important;
 }
 
@@ -720,4 +720,123 @@ html:not(.dark) .text-rose-500 {
 }
 html:not(.dark) .text-emerald-500 {
   color: #047857 !important;
+}
+
+/* ─── Dedicated Premium Enterprise Light Theme Overrides ─────────────────── */
+/* 1. Simplify elevation and remove unnecessary heavy drop shadows */
+html:not(.dark) .card,
+html:not(.dark) .table-wrapper,
+html:not(.dark) .modal-box {
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  border-color: #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.01) !important;
+}
+
+html:not(.dark) .card-hover:hover {
+  border-color: var(--railway-crimson) !important;
+  box-shadow: 0 4px 12px 0 rgba(124, 10, 10, 0.04) !important;
+}
+
+html:not(.dark) .stat-card {
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  border-top: 3px solid var(--railway-crimson) !important;
+  border-color: #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+html:not(.dark) .stat-card:hover {
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.03) !important;
+}
+
+/* 2. Enterprise-grade inputs & forms */
+html:not(.dark) .input {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important; /* Clear Slate-300 borders */
+  color: #0f172a !important; /* High contrast Slate-900 text */
+  border-radius: 6px !important;
+  box-shadow: none !important;
+}
+
+html:not(.dark) .input::placeholder {
+  color: #64748b !important; /* Highly visible Slate-500 placeholder */
+  opacity: 1 !important;
+}
+
+html:not(.dark) .input:focus {
+  border-color: var(--railway-crimson) !important;
+  box-shadow: 0 0 0 2px rgba(124, 10, 10, 0.08) !important;
+}
+
+html:not(.dark) .form-label {
+  color: #1e293b !important; /* Slate-800 labels */
+  font-weight: 600 !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* 3. Enterprise-grade tables */
+html:not(.dark) .table thead tr {
+  background-color: #f8fafc !important; /* Light Slate-50 header background */
+}
+
+html:not(.dark) .table thead th {
+  background-color: #f8fafc !important;
+  color: #334155 !important; /* Slate-700 header text */
+  border-bottom: 1px solid #e2e8f0 !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 0.05em !important;
+}
+
+html:not(.dark) .table tbody tr {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+html:not(.dark) .table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark) .table tbody td {
+  color: #0f172a !important; /* Slate-900 body cells */
+  border-bottom: 1px solid #f1f5f9 !important;
+  font-weight: 500 !important;
+}
+
+/* 4. Global Recharts SVG styling overrides to match design system */
+html:not(.dark) .recharts-cartesian-axis-tick text {
+  fill: #475569 !important; /* Slate-600 tick labels */
+  font-weight: 600 !important;
+  font-size: 10px !important;
+}
+
+html:not(.dark) .recharts-text {
+  fill: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) .recharts-legend-item-text {
+  color: #1e293b !important; /* Slate-800 legend items */
+  font-weight: 700 !important;
+  font-size: 10px !important;
+}
+
+html:not(.dark) .recharts-cartesian-grid line {
+  stroke: #e2e8f0 !important; /* Soft border grid lines */
+  stroke-opacity: 0.8 !important;
+}
+
+/* 5. Enterprise tab-bar contrast updates */
+html:not(.dark) .tab-btn {
+  color: #475569 !important; /* Slate-600 */
+}
+html:not(.dark) .tab-btn:hover {
+  color: #0f172a !important; /* Slate-900 */
+}
+html:not(.dark) .tab-btn.active {
+  color: var(--railway-crimson) !important;
+  border-color: var(--railway-crimson) !important;
 }

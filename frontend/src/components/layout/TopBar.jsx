@@ -86,7 +86,7 @@ export default function TopBar({ onMenuClick }) {
       }}
     >
       {/* 1. Official Government Header Strip */}
-      <div className="w-full flex items-center justify-between px-5 py-3 text-[10.5px] font-bold uppercase tracking-wider text-white select-none"
+      <div className="gov-strip w-full flex items-center justify-between px-5 py-3 text-[10.5px] font-bold uppercase tracking-wider text-white select-none"
            style={{ background: 'var(--railway-crimson)', minHeight: '36px' }}>
         <div className="flex items-center gap-3 md:gap-5 flex-wrap">
           <span className="text-[9px] md:text-[10.5px]">भारत सरकार <span className="hidden sm:inline">• Government of India</span></span>
@@ -153,12 +153,12 @@ export default function TopBar({ onMenuClick }) {
           </div>
 
           {/* Division Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1 rounded">
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider select-none">DIVISION:</span>
+          <div className="flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 px-3 py-1 rounded">
+            <span className="text-[9px] font-bold text-slate-750 dark:text-slate-400 uppercase tracking-wider select-none">DIVISION:</span>
             <select
               value={currentDivision}
               onChange={(e) => setCurrentDivision(e.target.value)}
-              className="bg-transparent text-[10px] font-bold text-slate-700 dark:text-slate-200 outline-none cursor-pointer uppercase tracking-wide"
+              className="bg-transparent text-[10px] font-bold text-slate-900 dark:text-slate-200 outline-none cursor-pointer uppercase tracking-wide"
             >
               <option value="East Coast Railway (HQ-BBS)">Zonal HQ (BBS)</option>
               <option value="Khurda Road Division (KUR)">Khurda Road (KUR)</option>
@@ -170,13 +170,13 @@ export default function TopBar({ onMenuClick }) {
 
         {/* Global Search Bar */}
         <div className="hidden md:flex items-center relative max-w-xs flex-1 mx-4">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 dark:text-slate-500" />
           <input
             type="text"
             placeholder={t("Search assets, divisions...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-700 dark:text-slate-300 placeholder-slate-500 focus:border-amber-600 focus:outline-none transition-all"
+            className="w-full pl-9 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-slate-300 placeholder-slate-500 focus:border-[#7c0a0a] dark:focus:border-amber-600 focus:outline-none transition-all"
           />
         </div>
 
@@ -187,7 +187,7 @@ export default function TopBar({ onMenuClick }) {
           <button
             id="mobile-search-btn"
             onClick={() => window.dispatchEvent(new CustomEvent('open-global-search'))}
-            className="btn-icon w-8 h-8 rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500 hover:text-red-750 md:hidden"
+            className="btn-icon w-8 h-8 rounded border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 hover:text-[#7c0a0a] md:hidden animate-fade-in"
             title="Search Portal"
           >
             <Search size={13} />
@@ -197,7 +197,7 @@ export default function TopBar({ onMenuClick }) {
           <button
             id="theme-toggle"
             onClick={toggleTheme}
-            className="btn-icon w-8 h-8 rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-500 hover:text-red-700"
+            className="btn-icon w-8 h-8 rounded border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-slate-700 hover:text-[#7c0a0a]"
             title={isDark ? 'Day Theme' : 'Night Theme'}
           >
             {isDark ? <Sun size={13} /> : <Moon size={13} />}
@@ -206,7 +206,7 @@ export default function TopBar({ onMenuClick }) {
           {/* Notifications bell */}
           <button
             id="notifications-btn"
-            className="btn-icon w-8 h-8 rounded border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 relative text-slate-500 hover:text-red-700"
+            className="btn-icon w-8 h-8 rounded border border-slate-300 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 relative text-slate-700 hover:text-[#7c0a0a]"
             title="Notifications & Alerts"
             onClick={() => navigate('/notifications')}
           >
@@ -222,7 +222,7 @@ export default function TopBar({ onMenuClick }) {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-slate-200 dark:bg-slate-800" />
+          <div className="w-px h-6 bg-slate-300 dark:bg-slate-800" />
 
           {/* User drop menu */}
           <div className="relative" ref={userMenuRef}>
@@ -237,32 +237,32 @@ export default function TopBar({ onMenuClick }) {
               >
                 {initials(`${user?.firstName || ''} ${user?.lastName || ''}`)}
               </div>
-              <ChevronDown size={12} className="text-slate-500 transition-transform" />
+              <ChevronDown size={12} className="text-slate-600 dark:text-slate-500 transition-transform" />
             </button>
 
             {/* Dropdown Options */}
             {showUserMenu && (
               <div
-                className="absolute right-0 top-full mt-2 w-48 rounded border shadow-md overflow-hidden bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
+                className="absolute right-0 top-full mt-2 w-48 rounded border shadow-md overflow-hidden bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-800 animate-scale-in"
               >
-                <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                  <p className="text-xs font-bold text-slate-800 dark:text-white leading-none">
+                <div className="px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
+                  <p className="text-xs font-black text-slate-850 dark:text-white leading-none">
                     {user?.firstName} {user?.lastName}
                   </p>
-                  <p className="text-[9px] mt-1 text-slate-400 font-mono truncate leading-none">
+                  <p className="text-[9px] mt-1 text-slate-600 dark:text-slate-450 font-mono truncate leading-none">
                     {user?.email}
                   </p>
                 </div>
                 <button
                   onClick={() => { navigate('/settings'); setShowUserMenu(false) }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-900 text-left transition-colors"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 text-left transition-colors"
                 >
-                  <Settings size={12} className="text-slate-400" />
+                  <Settings size={12} className="text-slate-500 dark:text-slate-400" />
                   {t("Settings")}
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 text-left transition-colors border-t border-slate-100 dark:border-slate-800"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-red-750 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 text-left transition-colors border-t border-slate-200 dark:border-slate-800"
                 >
                   <LogOut size={12} />
                   {t("Logout")}

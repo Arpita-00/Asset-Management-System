@@ -49,25 +49,60 @@ export default function AppLayout() {
         </div>
         
         {/* Premium Official Footer */}
-        <footer className="py-6 border-t px-6 text-xs text-slate-500 dark:text-slate-400 bg-white/40 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/80">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-left">
-              <p className="font-bold text-slate-700 dark:text-slate-300">Indian Railways Asset Management Portal (IR-AMP)</p>
-              <p className="text-[10px] mt-0.5 opacity-75">Designed & Developed for Ministry of Railways, Government of India.</p>
+        <footer className="py-8 border-t px-6 text-xs bg-slate-50/90 dark:bg-slate-900/60 border-slate-300 dark:border-slate-800/80 transition-colors duration-150">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 text-left">
+            
+            {/* Zonal Branding Column */}
+            <div className="md:col-span-6 space-y-2">
+              <p className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-wide uppercase">
+                EAST COAST RAILWAY • पूर्व तट रेलवे
+              </p>
+              <p className="text-[11px] font-bold text-[#7c0a0a] dark:text-amber-500 uppercase tracking-widest">
+                Asset Management Platform (ECoR-AMP)
+              </p>
+              <p className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold max-w-md leading-relaxed">
+                Designed & Developed for Ministry of Railways, Government of India. Real-time divisional command and monitoring dashboard.
+              </p>
             </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center text-[11px] font-semibold text-slate-600 dark:text-slate-300">
-              <a href="#privacy" className="hover:underline">Privacy Policy</a>
-              <span>•</span>
-              <a href="#terms" className="hover:underline">Terms of Service</a>
-              <span>•</span>
-              <a href="#security" className="hover:underline">Security Audit Policy</a>
-              <span>•</span>
-              <a href="#help" className="hover:underline">Help & Support</a>
+
+            {/* Official Policies Column */}
+            <div className="md:col-span-3 space-y-2.5">
+              <p className="text-[10px] font-black uppercase text-slate-700 dark:text-slate-350 tracking-wider">
+                Official Policies
+              </p>
+              <div className="flex flex-col gap-1.5 font-bold text-slate-600 dark:text-slate-300 text-[11px]">
+                <a href="#privacy" className="hover:text-[#7c0a0a] dark:hover:text-amber-500 transition-colors hover:underline">Privacy Policy</a>
+                <a href="#terms" className="hover:text-[#7c0a0a] dark:hover:text-amber-500 transition-colors hover:underline">Terms of Service</a>
+                <a href="#security" className="hover:text-[#7c0a0a] dark:hover:text-amber-500 transition-colors hover:underline">Security Audit Policy</a>
+              </div>
             </div>
+
+            {/* Support Column */}
+            <div className="md:col-span-3 space-y-2.5">
+              <p className="text-[10px] font-black uppercase text-slate-700 dark:text-slate-350 tracking-wider">
+                Support & Helpdesk
+              </p>
+              <div className="flex flex-col gap-1.5 font-bold text-slate-600 dark:text-slate-300 text-[11px]">
+                <a href="#help" className="hover:text-[#7c0a0a] dark:hover:text-amber-500 transition-colors hover:underline">Help & Support Directory</a>
+                <a href="#contact" className="hover:text-[#7c0a0a] dark:hover:text-amber-500 transition-colors hover:underline">Zonal Division HQ (BBS)</a>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 mt-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>NOC Gateway: Online</span>
+                </div>
+              </div>
+            </div>
+
           </div>
-          <p className="mt-4 text-center text-[10px] opacity-60">
-            © {new Date().getFullYear()} Ministry of Railways. All Rights Reserved. (Ver 2.0.4-secure)
-          </p>
+
+          {/* Copyright Divider Bar */}
+          <div className="max-w-7xl mx-auto mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-slate-500 dark:text-slate-450 font-bold select-none">
+            <p>
+              © {new Date().getFullYear()} Ministry of Railways. All Rights Reserved. (ECoR division HQ-BBS)
+            </p>
+            <p className="font-mono">
+              Ver 2.0.4-secure • STQC Certified Portal
+            </p>
+          </div>
         </footer>
       </main>
 
