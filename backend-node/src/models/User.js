@@ -18,6 +18,8 @@ const User = sequelize.define('User', {
   isActive: { type: DataTypes.BOOLEAN, defaultValue: true, field: 'isActive' },
   isEmailVerified: { type: DataTypes.BOOLEAN, defaultValue: false, field: 'isEmailVerified' },
   lastLogin: { type: DataTypes.DATE, field: 'lastLogin' },
+  loginCount: { type: DataTypes.INTEGER, defaultValue: 0, field: 'loginCount' },
+  lastLoginAt: { type: DataTypes.DATE, field: 'lastLoginAt' },
   // Stored as SHA-256 hash of the actual refresh token
   refreshToken: { type: DataTypes.TEXT, field: 'refreshToken' },
   passwordResetToken: { type: DataTypes.STRING(255), field: 'passwordResetToken' },

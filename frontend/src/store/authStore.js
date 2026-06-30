@@ -26,6 +26,8 @@ const useAuthStore = create(
           roles:      data.roles || [],
           avatarUrl:  data.avatarUrl,
           department: data.department,
+          loginCount: data.loginCount,
+          lastLoginAt: data.lastLoginAt,
         },
         accessToken:     data.accessToken,
         refreshToken:    data.refreshToken,

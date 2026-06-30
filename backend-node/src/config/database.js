@@ -46,6 +46,8 @@ async function connectDatabase() {
     await sequelize.sync();
     logger.info('✅ Database tables synchronized');
 
+    await runUserMigration();
+
     await seedDefaultAuthData(models);
 
     const { seedEnterpriseData } = require('./seeder');
@@ -133,6 +135,38 @@ async function seedDefaultAuthData(models) {
   }
 
   logger.info('✅ Default demo users seeded: admin@company.com, employee@company.com');
+}
+
+async function runUserMigration() {
+  try {
+    const queryInterface = sequelize.getQueryInterface();
+    const tableDefinition = await queryInterface.describeTable('users');
+    
+    if (!tableDefinition.loginCount) {
+      logger.info('Migrating users: adding loginCount column...');
+      await queryInterface.addColumn('users', 'loginCount', {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+        allowNull: false
+      });
+      // Set existing users loginCount = 1 if they have logged in before, else 0
+      await sequelize.query("UPDATE users SET loginCount = 1 WHERE lastLogin IS NOT NULL");
+      logger.info('✅ loginCount column added and initialized');
+    }
+    
+    if (!tableDefinition.lastLoginAt) {
+      logger.info('Migrating users: adding lastLoginAt column...');
+      await queryInterface.addColumn('users', 'lastLoginAt', {
+        type: Sequelize.DATE,
+        allowNull: true
+      });
+      // Copy existing lastLogin values
+      await sequelize.query("UPDATE users SET lastLoginAt = lastLogin WHERE lastLogin IS NOT NULL");
+      logger.info('✅ lastLoginAt column added and initialized');
+    }
+  } catch (err) {
+    logger.error(`❌ Migration failed: ${err.message}`);
+  }
 }
 
 module.exports = { sequelize, connectDatabase };

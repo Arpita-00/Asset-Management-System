@@ -71,7 +71,11 @@ export default function LoginPage() {
     onSuccess: (res) => {
       const data = res.data?.data || res.data
       setAuth(data)
-      success(`Welcome, ${data.firstName}!`)
+      if (data.loginCount === 1) {
+        success(`Welcome, ${data.firstName}!`)
+      } else {
+        success(`Welcome Back, ${data.firstName}!`)
+      }
       navigate('/dashboard')
     },
     onError: (err) => {

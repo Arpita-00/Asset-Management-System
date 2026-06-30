@@ -54,6 +54,8 @@ async function login(email, password) {
   // Store hashed refresh token (mirrors passwordEncoder.encode(refreshToken))
   user.refreshToken = hashValue(refreshToken);
   user.lastLogin = new Date();
+  user.lastLoginAt = new Date();
+  user.loginCount = (user.loginCount || 0) + 1;
   await user.save();
 
   await auditLogService.log('LOGIN', 'USER', user.id, null, null,
@@ -250,6 +252,8 @@ async function getProfile(userId) {
     isActive: user.isActive,
     isEmailVerified: user.isEmailVerified,
     lastLogin: user.lastLogin,
+    loginCount: user.loginCount,
+    lastLoginAt: user.lastLoginAt,
     department: user.department ? { id: user.department.id, name: user.department.name } : null,
     roles: user.Roles ? user.Roles.map(r => r.name) : [],
     emailAlerts: user.emailAlerts,
@@ -288,6 +292,8 @@ function buildAuthResponse(user, roles, accessToken, refreshToken) {
     lastName: user.lastName,
     avatarUrl: user.avatarUrl,
     roles,
+    loginCount: user.loginCount,
+    lastLoginAt: user.lastLoginAt,
     department: user.department ? user.department.name : null,
     emailAlerts: user.emailAlerts,
     maintenanceUpdates: user.maintenanceUpdates,
