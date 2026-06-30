@@ -159,11 +159,12 @@ export default function TopBar({ onMenuClick }) {
               value={currentDivision}
               onChange={(e) => setCurrentDivision(e.target.value)}
               className="bg-transparent text-[10px] font-bold text-slate-900 dark:text-slate-200 outline-none cursor-pointer uppercase tracking-wide"
+              style={{ color: isDark ? '#cbd5e1' : '#0f172a' }}
             >
-              <option value="East Coast Railway (HQ-BBS)">Zonal HQ (BBS)</option>
-              <option value="Khurda Road Division (KUR)">Khurda Road (KUR)</option>
-              <option value="Sambalpur Division (SBP)">Sambalpur (SBP)</option>
-              <option value="Waltair Division (WAT)">Waltair (WAT)</option>
+              <option value="East Coast Railway (HQ-BBS)" style={{ color: isDark ? '#cbd5e1' : '#0f172a', backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>Zonal HQ (BBS)</option>
+              <option value="Khurda Road Division (KUR)" style={{ color: isDark ? '#cbd5e1' : '#0f172a', backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>Khurda Road (KUR)</option>
+              <option value="Sambalpur Division (SBP)" style={{ color: isDark ? '#cbd5e1' : '#0f172a', backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>Sambalpur (SBP)</option>
+              <option value="Waltair Division (WAT)" style={{ color: isDark ? '#cbd5e1' : '#0f172a', backgroundColor: isDark ? '#0f172a' : '#ffffff' }}>Waltair (WAT)</option>
             </select>
           </div>
         </div>
