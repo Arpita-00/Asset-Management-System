@@ -11,7 +11,7 @@ import {
 } from 'recharts'
 import { reportApi, dashboardApi } from '../../api/index'
 import { demoAssets, demoMaintenance, demoWarranties, demoDepreciation, demoAllocations } from '../../api/mockData'
-import { downloadBlob, getErrorMessage } from '../../utils/formatters'
+import { downloadBlob, getErrorMessage, formatNumber } from '../../utils/formatters'
 import { useToast } from '../../hooks/useToast'
 import useThemeStore from '../../store/themeStore'
 
@@ -82,6 +82,24 @@ const REPORT_TYPES = [
     chartType: 'bar'
   }
 ]
+
+// ─── Custom Tooltip (Clean portal styling) ──────────────────────────────────
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-slate-900 border border-slate-750 p-2.5 shadow-xl rounded-xl text-xs text-white">
+      <p className="font-bold border-b border-slate-800 pb-1 mb-1">{label}</p>
+      {payload.map((p, i) => (
+        <p key={i} className="font-mono flex justify-between gap-4">
+          <span className="text-slate-400">{p.name}:</span>
+          <span className="font-bold" style={{ color: p.color || '#fff' }}>
+            {formatNumber(p.value)}
+          </span>
+        </p>
+      ))}
+    </div>
+  )
+}
 
 export default function ReportsPage() {
   const { error, success } = useToast()
