@@ -11,10 +11,18 @@ import { useDebounce } from '../../hooks/useDebounce'
 import useAuthStore from '../../store/authStore'
 
 const MAINTENANCE_TYPES = ['Hardware Issue', 'Software Issue', 'Network Issue', 'Cleaning', 'Toner Replacement', 'System Update', 'Battery Replacement', 'Other']
-const STATUS_OPTIONS    = ['PENDING', 'ONGOING', 'COMPLETED', 'CANCELLED']
+const STATUS_OPTIONS    = ['OPEN', 'IN_PROGRESS', 'PENDING_PARTS', 'COMPLETED', 'CANCELLED', 'PENDING', 'ONGOING']
 
 function statusClass(s) {
-  const m = { COMPLETED: 'badge-success', ONGOING: 'badge-warning', PENDING: 'badge-info', CANCELLED: 'badge-danger' }
+  const m = { 
+    COMPLETED: 'badge-success', 
+    ONGOING: 'badge-warning', 
+    IN_PROGRESS: 'badge-warning', 
+    PENDING: 'badge-info', 
+    OPEN: 'badge-info', 
+    PENDING_PARTS: 'badge-warning',
+    CANCELLED: 'badge-danger' 
+  }
   return m[s] || 'badge-gray'
 }
 
@@ -200,10 +208,16 @@ export default function MaintenancePage() {
   const statusChartData = Object.values(statusCounts)
 
   const STATUS_COLORS = {
-    PENDING: '#f59e0b',
-    ONGOING: '#1E3A8A',
-    COMPLETED: '#10b981',
-    CANCELLED: '#ef4444'
+    // Real database / constant statuses
+    OPEN: '#3b82f6',          // Bright blue
+    IN_PROGRESS: '#f59e0b',   // Amber
+    PENDING_PARTS: '#d97706', // Orange
+    COMPLETED: '#10b981',     // Green
+    CANCELLED: '#ef4444',     // Red
+
+    // Legacy mock statuses
+    PENDING: '#3b82f6',
+    ONGOING: '#f59e0b'
   }
 
   return (
