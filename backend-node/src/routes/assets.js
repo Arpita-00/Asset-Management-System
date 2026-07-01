@@ -172,6 +172,28 @@ router.get('/tag/:assetTag', authenticate, async (req, res) => {
   res.status(200).json(ApiResponse.success(data));
 });
 
+// GET /api/assets/my-assets — get assets assigned to the logged-in user
+router.get('/my-assets', authenticate, async (req, res) => {
+  const { Employee, Asset, AssetCategory, Department } = require('../models');
+  
+  // Find employee record for the logged-in user
+  const employee = await Employee.findOne({ where: { userId: req.user.id } });
+  if (!employee) {
+    return res.status(200).json(ApiResponse.success([]));
+  }
+  
+  const assets = await Asset.findAll({
+    where: { assignedToId: employee.id, isActive: true },
+    include: [
+      { model: AssetCategory, as: 'category', attributes: ['id', 'name', 'code'] },
+      { model: Department, as: 'department', attributes: ['id', 'name', 'code'] }
+    ],
+    order: [['purchaseDate', 'DESC']]
+  });
+  
+  res.status(200).json(ApiResponse.success(assets));
+});
+
 router.get('/:id', authenticate, async (req, res) => {
   const asset = await assetService.findByIdentifier(req.params.id);
   

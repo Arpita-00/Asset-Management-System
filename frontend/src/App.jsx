@@ -29,6 +29,7 @@ const ReturnAssetsPage = lazy(() => import('./pages/return/ReturnAssetsPage'))
 const NotificationsPage = lazy(() => import('./pages/notifications/NotificationsPage'))
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'))
 const UsersPage = lazy(() => import('./pages/users/UsersPage'))
+const MyAssetsPage = lazy(() => import('./pages/assets/MyAssetsPage'))
 
 const AssetPassportPage = lazy(() => import('./pages/assets/AssetPassportPage'))
 
@@ -117,6 +118,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/assets" element={<AssetsPage />} />
                 <Route path="/assets/:id" element={<AssetDetailPage />} />
+                <Route path="/my-assets" element={<MyAssetsPage />} />
                 <Route path="/ai-assistant" element={<AiAssistantPage />} />
                 <Route path="/qr-scanner" element={<QrScannerPage />} />
                 <Route path="/ocr-scanner" element={<OcrScannerPage />} />

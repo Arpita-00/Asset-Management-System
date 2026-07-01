@@ -30,4 +30,8 @@ export const assetApi = {
   getDocuments: (assetId) => axiosClient.get(`/assets/${assetId}/documents`),
   reportIssue: (assetId, data) => axiosClient.post(`/assets/${assetId}/report-issue`, data),
   downloadSingleAssetPdf: (assetId) => axiosClient.get(`/reports/assets/${assetId}`, { responseType: 'blob' }),
+  getMyAssets: () => fallbackOnNetworkError(
+    axiosClient.get('/assets/my-assets'),
+    demoAssets.filter(item => item.assignedToName === 'Rajesh Sharma' || item.status === 'ASSIGNED')
+  ),
 }

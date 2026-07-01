@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Package, Tag, Users, Building2,
   GitBranch, RotateCcw, Wrench, QrCode, BarChart3,
   Bell, Settings, UserCog, LogOut, ChevronDown, Shield, Landmark,
-  Activity, Cpu, TrendingUp, History, Bot
+  User, Activity, Cpu, TrendingUp, History, Bot
 } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import useAuthStore from '../../store/authStore'
@@ -36,6 +36,7 @@ const navigationGroups = [
     title: 'Assets',
     items: [
       { to: '/assets',      icon: Package,          label: 'Assets Registry' },
+      { to: '/my-assets',   icon: User,             label: 'My Assets' },
     ]
   },
   {
