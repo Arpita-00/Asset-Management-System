@@ -852,3 +852,76 @@ html.dark select {
   color: #f1f5f9 !important; /* Near white text in dark mode */
   background-color: #0f172a !important;
 }
+
+/* 7. Global Recharts Font Family and Tooltip Styles */
+.recharts-wrapper text,
+.recharts-wrapper span,
+.recharts-legend-item-text,
+.recharts-default-legend-item,
+.recharts-cartesian-axis-tick text,
+.recharts-label,
+.recharts-default-tooltip {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+}
+
+/* Premium Recharts Tooltip Styling */
+.custom-recharts-tooltip {
+  background-color: rgb(var(--bg-surface)) !important;
+  border: 1px solid rgb(var(--border-color)) !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  font-size: 11px !important;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  color: rgb(var(--text-primary)) !important;
+  min-width: 140px;
+}
+
+/* Force light background and borders in light mode for the custom tooltip */
+html:not(.dark) .custom-recharts-tooltip {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.08) !important;
+}
+
+.custom-recharts-tooltip .tooltip-title {
+  font-weight: 700 !important;
+  border-bottom: 1px solid rgb(var(--border-color)) !important;
+  padding-bottom: 4px !important;
+  margin-bottom: 6px !important;
+  color: rgb(var(--text-primary)) !important;
+  font-size: 11px !important;
+}
+
+html:not(.dark) .custom-recharts-tooltip .tooltip-title {
+  border-bottom-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.custom-recharts-tooltip .tooltip-row {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 16px !important;
+  margin-top: 4px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+}
+
+.custom-recharts-tooltip .tooltip-label {
+  color: rgb(var(--text-muted)) !important;
+}
+
+html:not(.dark) .custom-recharts-tooltip .tooltip-label {
+  color: #475569 !important; /* Slate-600 in light mode */
+}
+
+.custom-recharts-tooltip .tooltip-value {
+  font-weight: 700 !important;
+  color: rgb(var(--text-primary)) !important;
+}
+
+html:not(.dark) .custom-recharts-tooltip .tooltip-value {
+  color: #0f172a !important;
+}
+

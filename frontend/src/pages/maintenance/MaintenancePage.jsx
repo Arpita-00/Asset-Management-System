@@ -100,13 +100,27 @@ function MaintenanceModal({ item, assets, onClose, onSave }) {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-slate-900 border border-slate-750 p-2 shadow rounded text-xs text-white">
-      <p className="font-bold border-b border-slate-800 pb-1 mb-1">{label || 'Maintenance Metric'}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="font-mono">
-          <span className="text-slate-400">{p.name}:</span> {p.name.toLowerCase().includes('cost') ? `₹${Number(p.value).toLocaleString()}` : p.value}
-        </p>
-      ))}
+    <div className="custom-recharts-tooltip">
+      {label && <p className="tooltip-title">{label}</p>}
+      {payload.map((p, i) => {
+        const color = p.color || p.payload?.fill || p.fill || p.payload?.color
+        return (
+          <div key={i} className="tooltip-row">
+            <span className="flex items-center gap-1.5">
+              {color && (
+                <span 
+                  className="w-2 h-2 rounded-full inline-block" 
+                  style={{ backgroundColor: color }}
+                />
+              )}
+              <span className="tooltip-label">{p.name}:</span>
+            </span>
+            <span className="tooltip-value">
+              {p.name.toLowerCase().includes('cost') ? `₹${Number(p.value).toLocaleString()}` : p.value}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }

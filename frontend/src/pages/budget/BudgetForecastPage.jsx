@@ -160,13 +160,27 @@ function BudgetModal({ item, departments, onClose, onSave }) {
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-slate-900 border border-slate-750 p-2 shadow rounded text-xs text-white">
-      <p className="font-bold border-b border-slate-800 pb-1 mb-1">{label || 'Budget comparison'}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="font-mono">
-          <span className="text-slate-400">{p.name}:</span> ₹{Number(p.value).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-        </p>
-      ))}
+    <div className="custom-recharts-tooltip">
+      {label && <p className="tooltip-title">{label}</p>}
+      {payload.map((p, i) => {
+        const color = p.color || p.payload?.fill || p.fill || p.payload?.color
+        return (
+          <div key={i} className="tooltip-row">
+            <span className="flex items-center gap-1.5">
+              {color && (
+                <span 
+                  className="w-2 h-2 rounded-full inline-block" 
+                  style={{ backgroundColor: color }}
+                />
+              )}
+              <span className="tooltip-label">{p.name}:</span>
+            </span>
+            <span className="tooltip-value">
+              ₹{Number(p.value).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        )
+      })}
     </div>
   )
 }
