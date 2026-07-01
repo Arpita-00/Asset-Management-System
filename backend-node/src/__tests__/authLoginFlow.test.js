@@ -7,9 +7,20 @@ describe('User loginCount & lastLoginAt Flow Tests', () => {
   let testUserPassword = 'Password@123';
   let testUser;
 
+  let adminToken;
+
   beforeAll(async () => {
     // Generate a unique email to avoid conflicts
     testUserEmail = `testuser_${Date.now()}@example.com`;
+
+    // Login as admin to get an access token for registration
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({
+        email: 'admin@company.com',
+        password: 'Admin@123'
+      });
+    adminToken = loginRes.body.data.accessToken;
   });
 
   afterAll(async () => {
@@ -22,6 +33,7 @@ describe('User loginCount & lastLoginAt Flow Tests', () => {
   test('should register a new user with loginCount = 0', async () => {
     const res = await request(app)
       .post('/api/auth/register')
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         firstName: 'Test',
         lastName: 'LoginCount',

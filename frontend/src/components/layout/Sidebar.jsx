@@ -36,7 +36,7 @@ const navigationGroups = [
     title: 'Assets',
     items: [
       { to: '/assets',      icon: Package,          label: 'Assets Registry' },
-      { to: '/my-assets',   icon: User,             label: 'My Assets' },
+      { to: '/my-assets',   icon: User,             label: 'My Assets',     roles: ['ROLE_EMPLOYEE'] },
     ]
   },
   {

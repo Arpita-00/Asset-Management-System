@@ -426,15 +426,6 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Register Account */}
-                <div className="mt-5 text-center">
-                  <p className="text-xs text-slate-500 font-semibold">
-                    New user?{' '}
-                    <Link to="/register" className="font-bold text-[#7c0a0a] dark:text-amber-500 hover:underline">
-                      Register Account
-                    </Link>
-                  </p>
-                </div>
               </div>
 
               {/* Login Card Footer Strip */}

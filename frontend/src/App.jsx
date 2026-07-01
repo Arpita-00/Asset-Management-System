@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import ErrorBoundary from './components/common/ErrorBoundary'
 import PageLoader from './components/common/PageLoader'
 import NotFoundPage from './components/common/NotFoundPage'
-import { ProtectedRoute, PublicRoute, AdminRoute, SuperAdminRoute } from './components/layout/ProtectedRoute'
+import { ProtectedRoute, PublicRoute, AdminRoute, SuperAdminRoute, EmployeeRoute } from './components/layout/ProtectedRoute'
 
 // ─── Lazy-loaded routes (code splitting) ─────────────────────────────────────
 const AppLayout = lazy(() => import('./components/layout/AppLayout'))
@@ -103,7 +103,6 @@ export default function App() {
             {/* Public auth routes */}
             <Route element={<PublicRoute />}>
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
             </Route>
 
@@ -118,7 +117,9 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/assets" element={<AssetsPage />} />
                 <Route path="/assets/:id" element={<AssetDetailPage />} />
-                <Route path="/my-assets" element={<MyAssetsPage />} />
+                <Route element={<EmployeeRoute />}>
+                  <Route path="/my-assets" element={<MyAssetsPage />} />
+                </Route>
                 <Route path="/ai-assistant" element={<AiAssistantPage />} />
                 <Route path="/qr-scanner" element={<QrScannerPage />} />
                 <Route path="/ocr-scanner" element={<OcrScannerPage />} />

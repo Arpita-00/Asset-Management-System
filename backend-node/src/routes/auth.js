@@ -17,7 +17,9 @@ router.post('/login', async (req, res) => {
   res.status(200).json(ApiResponse.success(data, 'Login successful'));
 });
 
-router.post('/register', async (req, res) => {
+const { requireAdmin } = require('../middleware/rbac');
+
+router.post('/register', authenticate, requireAdmin, async (req, res) => {
   const data = await authService.register(req.body);
   res.status(201).json(ApiResponse.created(data, 'User registered successfully'));
 });

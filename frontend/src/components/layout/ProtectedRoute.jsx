@@ -37,3 +37,13 @@ export function PublicRoute() {
   const { isAuthenticated } = useAuthStore()
   return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Outlet />
 }
+
+/**
+ * Employee route guard — redirects to /dashboard if not employee.
+ */
+export function EmployeeRoute() {
+  const { isAuthenticated, isEmployee } = useAuthStore()
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (!isEmployee()) return <Navigate to="/dashboard" replace />
+  return <Outlet />
+}
