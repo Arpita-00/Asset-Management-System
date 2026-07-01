@@ -477,7 +477,7 @@ export default function DashboardPage() {
               <BarChart data={categoryChart} barSize={24} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="2 2" stroke="rgba(var(--text-muted)/0.15)" />
                 <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
-                <YAxis tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
+                <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
                 <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
                 <Bar dataKey="value" name="Asset Count" radius={[2, 2, 0, 0]}>
@@ -505,7 +505,7 @@ export default function DashboardPage() {
               <BarChart data={deptChart} barSize={32} margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="2 2" stroke="rgba(var(--text-muted)/0.15)" />
                 <XAxis dataKey="name" tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" angle={-25} textAnchor="end" interval={0} height={60} />
-                <YAxis tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
+                <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: 'rgb(var(--text-secondary))' }} stroke="rgba(var(--text-muted)/0.3)" />
                 <Tooltip cursor={false} content={<CustomTooltip />} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 9, textTransform: 'uppercase', paddingTop: 10 }} />
                 <Bar dataKey="value" name="Assets Count" radius={[3, 3, 0, 0]}>
