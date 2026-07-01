@@ -4,7 +4,7 @@ export const mockResponse = (data) => Promise.resolve({ data: { data } })
 
 export const fallbackOnNetworkError = (request, data) =>
   request.catch((error) => {
-    if (isNetworkError(error)) return mockResponse(data)
+    if (isNetworkError(error) || error.response?.status === 404) return mockResponse(data)
     throw error
   })
 
