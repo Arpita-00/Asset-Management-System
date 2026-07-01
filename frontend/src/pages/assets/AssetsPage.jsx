@@ -139,7 +139,7 @@ export default function AssetsPage() {
       key: 'assetTag',
       header: t('Asset ID'),
       sortable: true,
-      width: 120,
+      width: 170,
       render: (a) => (
         <span className="table-asset-tag" onClick={(e) => { e.stopPropagation(); navigate(`/assets/${a.id}`); }}>
           #{a.assetTag || a.id}
